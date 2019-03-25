@@ -9,7 +9,7 @@ public class Gui
 {
      private JFrame mainFrame;
      private MyMenuBar menuBar; 
-     private Board boardPane;
+     private AllComponents componentPane;
      //private Board myBoard;
      //private piece aPiece;
 
@@ -19,10 +19,13 @@ public class Gui
     public Gui()
     {
         mainFrame = new JFrame("CheckersAI");//init mainframe
-        boardPane=new Board();
-        mainFrame.add(boardPane);//adding the com
+        componentPane = new AllComponents();
+        mainFrame.add(componentPane);
+        mainFrame.setContentPane(componentPane);//adding the com
         menuBar = new MyMenuBar(mainFrame);//init menu bar for this game
         mainFrame.setJMenuBar(menuBar);
+        mainFrame.pack();//to finalise changes and visualise them
+        mainFrame.setVisible(true);
     }
 
     /**
