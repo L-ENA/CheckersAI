@@ -1,5 +1,6 @@
 import java.awt.*;  
 import javax.swing.*;
+import java.util.*;
 /**
  * Write a description of class AllComponents here.
  *
@@ -70,7 +71,9 @@ public class AllComponents extends JPanel
     
     
     
-    
+    //public void updateBoard(ArrayList<Node> initState){
+        //boardPane.update(initState);
+    //}
     
     
     /**

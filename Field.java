@@ -2,6 +2,10 @@ import javax.swing.*;
 import java.awt.Color;
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+import java.awt.image.*;
+import java.io.*;
+
 /**
  * Write a description of class Field here.
  *
@@ -11,6 +15,8 @@ import javax.swing.border.Border;
 public class Field extends JLabel
 {
     // instance variables - replace the example below with your own
+    private int i;
+    private int j;
     private int[] index;
     private boolean black;//black is true
     final int DIMENSION = 15;
@@ -23,7 +29,9 @@ public class Field extends JLabel
     public Field(int[] index, boolean black)
     {
         
-        this.index=index;
+        this.i=index[0];
+        this.j=index[1];
+        this.index= index;
         this.black=black;
         this.setSize(DIMENSION, DIMENSION);
         this.setOpaque(true);
@@ -33,9 +41,17 @@ public class Field extends JLabel
             this.setBackground(Color.WHITE);
         }
         
-        Border border = BorderFactory.createLineBorder(Color.RED, 1);
-        this.setBorder(border);
+        Border border = BorderFactory.createLineBorder(Color.RED, 2);
+        TitledBorder tb = new TitledBorder(null, "(" + index[0]+ ", "+ index[1] +")", TitledBorder.LEFT,TitledBorder.ABOVE_BOTTOM);
+        tb.setTitleColor(Color.gray);
+        this.setBorder(tb);
         
+        
+        
+    }
+    
+    public void setIC(String path){
+        this.setIcon(new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(70, 70, 4)));
     }
 
     /**
@@ -44,9 +60,18 @@ public class Field extends JLabel
      * @param  y  a sample parameter for a method
      * @return    the sum of x and y
      */
-    public int sampleMethod(int y)
+    public int[] getIndex()
     {
         // put your code here
-        return 3;
+        return index;
     }
+    
+    public boolean compare(int[] ind)
+    {
+        if(this.index[0] == ind[0] && this.index[1] == ind[1])
+            return true;
+        else
+            return false;
+    }
+    
 }

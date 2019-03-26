@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.util.*;
 /**
  * Write a description of class Gui here.
  *
@@ -9,7 +10,7 @@ public class Gui
 {
      private JFrame mainFrame;
      private MyMenuBar menuBar; 
-     private AllComponents componentPane;
+     protected AllComponents componentPane;
      //private Board myBoard;
      //private piece aPiece;
 
@@ -28,18 +29,11 @@ public class Gui
         mainFrame.setVisible(true);
     }
 
-    /**
-     * An example of a method - replace this comment with your own
-     *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
-     */
-    public void sampleMethod(int y)
-    {
-        // put your code here
-        
-    }
     
+    
+    //public void updateComp(ArrayList<Node> initState){
+        //componentPane.updateBoard(initState);
+    //}
     
     
     
