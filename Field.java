@@ -15,14 +15,14 @@ import java.io.*;
 public class Field extends JLabel
 {
     // instance variables - replace the example below with your own
-    private int i;
-    private int j;
-    private int[] index;
+    protected int i;
+    protected int j;
+    protected int[] index;
     private boolean black;//black is true
     final int DIMENSION = 15;
-    
+    protected String link;
 
-     
+    protected String type = "";
     /**
      * Constructor for objects of class Field
      */

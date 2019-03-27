@@ -9,8 +9,8 @@ public class Main
 {
     // instance variables - replace the example below with your own
     private Gui gui;
-    private ArrayList<Node> initState;
-
+    protected static ArrayList<Node> initState;
+    protected static LinkedHashMap<ArrayList<Integer>, Node> state = new LinkedHashMap<ArrayList<Integer>, Node>();
     /**
      * Constructor for objects of class Main
      */
@@ -19,16 +19,16 @@ public class Main
         gui = new Gui();
         initState = new ArrayList<Node>();
         makeInit();
-        updateBlack();
+        updateAll();
     }
     
-    private void updateBlack(){
-        for (Node n: initState){
-            if(n.oc.equals(OCCUPY.BLACK)){
+    private void updateAll(){
+        for (ArrayList<Integer> n: state.keySet()){
+            
                 
-                gui.componentPane.boardPane.update(n.index, n.oc.getLink());
+            gui.componentPane.boardPane.update(n, state.get(n).oc.getLink());
                 
-            }
+            
         }
         gui.componentPane.boardPane.visualise();
     }
@@ -62,8 +62,49 @@ public class Main
         }
         
         for (Node n:initState){
-            n.print();
+            state.put(n.index,n);
         }
               
+    }
+    
+    public static boolean canMove(ArrayList<Integer> pos){
+        ArrayList<Node> candidates = new ArrayList<Node>();//to store all possible candidate nodes
+        Node current=state.get(pos);//current node
+        int i = pos.get(0);
+        int j = pos.get(1);
+        
+        
+        if(current.oc.equals(OCCUPY.WHITE)){
+            /////////////////////////////////////ccetting the candidate notes that are possible in a forward move by creating their keys and pulling the nodes
+            if(i>0 && j>0){
+                if (state.get(toList(i-1, j-1)).oc.equals(OCCUPY.FREE)) 
+                    candidates.add(state.get(toList(i-1, j-1)));
+                }    
+            if(i>0 && j<7)    
+                if (state.get(toList(i-1, j+1)).oc.equals(OCCUPY.FREE)) 
+                    candidates.add(state.get(toList(i-1, j+1)));
+                } 
+            
+              
+        if(candidates.size()>0)
+            return true;
+        else
+            return false;
+    }
+
+    private static ArrayList<Integer> toList(int i, int j){///helper to quickly init array list
+        ArrayList<Integer> ret = new ArrayList<Integer>();
+        ret.add(i);
+        ret.add(j);
+        return ret;
+    }
+    
+    //////problematic
+    public static void updateState(int i, int j, String link){
+        for(OCCUPY o : OCCUPY.values()){
+            if(o.getLink().equals(link))
+                state.put(toList(i,j), new Node(i,j,o));
+                System.out.println("updated");
+        }
     }
 }

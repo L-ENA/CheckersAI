@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.awt.event.MouseListener;
+import java.awt.datatransfer.Transferable;
 /**
  * Write a description of class Board here.
  *
@@ -15,8 +17,8 @@ public class Board extends JPanel
     // instance variables - replace the example below with your own
     int length = 8;
     int width = 8;
-    ArrayList<Field> guiState= new ArrayList<Field>();
-    LinkedHashMap<String, Field> squares = new LinkedHashMap<String, Field>();
+    
+    LinkedHashMap<ArrayList<Integer>, Field> squares = new LinkedHashMap<ArrayList<Integer>, Field>();
     
     /**
      * Constructor for objects of class Board
@@ -29,9 +31,13 @@ public class Board extends JPanel
         boolean black = false;////create initial gui state
         for (int i=0; i<8;i++){
             for (int j=0; j<8;j++){
+                
                 Field gameField = new Field(new int[] {i,j}, black);
+                ArrayList<Integer> l = new ArrayList<Integer>();
+                l.add(i);
+                l.add(j);
                 //guiState.add(gameField);
-                squares.put(String.valueOf(i)+","+String.valueOf(j), gameField);
+                squares.put(l, gameField);
                 black= !black;//flipping colour variable
             }
             black= !black;//flipping colour variable
@@ -47,9 +53,9 @@ public class Board extends JPanel
         this.setLayout(new GridLayout(8,8));  
         
         //setting grid layout of 3 rows and 3 columns  
-        Set<String> keys = squares.keySet();
+        Set<ArrayList<Integer>> keys = squares.keySet();
         
-        for(String index :keys){
+        for(ArrayList<Integer> index :keys){
             this.add(squares.get(index));
         }
         this.setSize(300,300); 
@@ -61,16 +67,34 @@ public class Board extends JPanel
     /**
      * checking if this is the right field, and updating it
      */
-    public void update(int[] indexNew, String link)
+    public void update(ArrayList<Integer> indexNew, String link)
     {
         //squares.put(indexNew, new Field(indexNew, link));
         
-        String key = String.valueOf(indexNew[0])+","+String.valueOf(indexNew[1]);
-        Field f = squares.get(key);
+        MouseListener listener = new DragMouseAdapter(indexNew, link);
+        
+        //String key = String.valueOf(indexNew[0])+","+String.valueOf(indexNew[1]);
+        Field f = squares.get(indexNew);
         //System.out.println(squares.keySet());
         f.setIC(link);
-        //System.out.println("adding black");
-        squares.put(key, f);
+        f.addMouseListener(listener);
+        f.setTransferHandler(new TransferHandler("icon") {
+            @Override
+            public int getSourceActions(JComponent c) {///to allow move option
+                return COPY | MOVE;
+            }
+            
+            @Override
+            protected void exportDone(JComponent source, Transferable data, int action) {//to delete the source image
+                if (action == MOVE){
+                    ((Field) source).setIC("");
+                    
+                }
+                
+            }
+        });
+        
+        squares.put(indexNew, f);
         //System.out.println(indexNew[0]+" "+indexNew[1]);
         
     }

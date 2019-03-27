@@ -1,4 +1,4 @@
-
+import java.util.*;
 /**
  * Write a description of class Node here.
  *
@@ -8,7 +8,7 @@
 public class Node
 {
     // instance variables - replace the example below with your own
-    protected int[] index;
+    protected ArrayList<Integer> index;
     protected OCCUPY oc;
     
 
@@ -18,7 +18,9 @@ public class Node
     public Node(int i, int j,OCCUPY oc)
     {
         this.oc=oc;
-        this.index=new int[]{i, j};
+        this.index=new ArrayList<>();
+        this.index.add(i);
+        this.index.add(j);
         
     }
 
@@ -31,6 +33,16 @@ public class Node
     public void print()
     {
         // put your code here
-        System.out.println(index[0] + ", "+ index[1]);
+        System.out.println(index.get(0) + ", "+ index.get(1));
     }
+    
+    
+    public boolean equals(ArrayList<Integer> comp) {
+        if(comp.equals(index))
+            return true;
+        else
+            return false;
+    }
+    
+    
 }
