@@ -10,7 +10,7 @@ public class Node
     // instance variables - replace the example below with your own
     protected int[] index;
     protected OCCUPY oc;
-    protected boolean king;
+    
 
     /**
      * Constructor for objects of class Node
@@ -19,7 +19,7 @@ public class Node
     {
         this.oc=oc;
         this.index=new int[]{i, j};
-        this.king=false;
+        
     }
 
     /**

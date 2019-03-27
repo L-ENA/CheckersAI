@@ -23,7 +23,14 @@ public class Main
     }
     
     private void updateBlack(){
-        //add info here gui.componentPane.boardPane.
+        for (Node n: initState){
+            if(n.oc.equals(OCCUPY.BLACK)){
+                
+                gui.componentPane.boardPane.update(n.index, n.oc.getLink());
+                
+            }
+        }
+        gui.componentPane.boardPane.visualise();
     }
 
     /**

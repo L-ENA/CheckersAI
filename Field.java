@@ -50,6 +50,26 @@ public class Field extends JLabel
         
     }
     
+    public Field(int[] index, String link){
+        this.i=index[0];
+        this.j=index[1];
+        this.index= index;
+        this.black=true;
+        this.setSize(DIMENSION, DIMENSION);
+        this.setOpaque(true);
+        if(black){
+            this.setBackground(Color.BLACK);
+        } else {
+            this.setBackground(Color.WHITE);
+        }
+        
+        Border border = BorderFactory.createLineBorder(Color.RED, 2);
+        TitledBorder tb = new TitledBorder(null, "(" + index[0]+ ", "+ index[1] +")", TitledBorder.LEFT,TitledBorder.ABOVE_BOTTOM);
+        tb.setTitleColor(Color.gray);
+        this.setBorder(tb);
+        setIC(link);
+    }
+    
     public void setIC(String path){
         this.setIcon(new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(70, 70, 4)));
     }

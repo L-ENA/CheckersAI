@@ -2,6 +2,8 @@ import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Set;
 /**
  * Write a description of class Board here.
  *
@@ -14,6 +16,7 @@ public class Board extends JPanel
     int length = 8;
     int width = 8;
     ArrayList<Field> guiState= new ArrayList<Field>();
+    LinkedHashMap<String, Field> squares = new LinkedHashMap<String, Field>();
     
     /**
      * Constructor for objects of class Board
@@ -27,8 +30,8 @@ public class Board extends JPanel
         for (int i=0; i<8;i++){
             for (int j=0; j<8;j++){
                 Field gameField = new Field(new int[] {i,j}, black);
-                guiState.add(gameField);
-                
+                //guiState.add(gameField);
+                squares.put(String.valueOf(i)+","+String.valueOf(j), gameField);
                 black= !black;//flipping colour variable
             }
             black= !black;//flipping colour variable
@@ -39,42 +42,36 @@ public class Board extends JPanel
     }
     
     ////visualising board according to the current gui state
-    private void visualise(){
+    protected void visualise(){
+        this.removeAll();
         this.setLayout(new GridLayout(8,8));  
+        
         //setting grid layout of 3 rows and 3 columns  
-        for (Field f:guiState){
-            this.add(f);
+        Set<String> keys = squares.keySet();
+        
+        for(String index :keys){
+            this.add(squares.get(index));
         }
-        this.setSize(300,300);  
+        this.setSize(300,300); 
+        this.revalidate();
+        this.repaint();
         this.setVisible(true);
     }
     
     /**
      * checking if this is the right field, and updating it
      */
-    public void update(int[] index, String colour, boolean king)
+    public void update(int[] indexNew, String link)
     {
-        for(Field f:guiState){
-            if(f.compare(index)){
-                if (colour == "b"){
-                    if (!king){
-                        f.setIC("blackNorm.png");
-                        System.out.println("updated black");
-                    }else
-                        f.setIC("blackKing.png");
-                } else if (colour == "w"){
-                    if(!king)
-                        f.setIC("whiteNorm.png");
-                    else
-                        f.setIC("whiteKing.png");
-                } else {
-                    f.setIcon(null);
-                    
-                }
-            }
-            f.revalidate();   
-        }
+        //squares.put(indexNew, new Field(indexNew, link));
         
-        visualise();
+        String key = String.valueOf(indexNew[0])+","+String.valueOf(indexNew[1]);
+        Field f = squares.get(key);
+        //System.out.println(squares.keySet());
+        f.setIC(link);
+        //System.out.println("adding black");
+        squares.put(key, f);
+        //System.out.println(indexNew[0]+" "+indexNew[1]);
+        
     }
 }

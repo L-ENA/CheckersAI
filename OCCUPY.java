@@ -7,5 +7,15 @@
  */
 public enum OCCUPY
 {
-    FREE, WHITE, BLACK
+    FREE(""), WHITE("whiteNorm.png"), BLACK("blackNorm.png"), BK("blackKing.png"), WK("whiteKing.png");
+    
+    private final String description;
+    
+    public String getLink() {///access to link
+        return description;
+    }
+
+    private OCCUPY(String description) {
+        this.description = description;
+    }
 }

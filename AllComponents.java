@@ -10,7 +10,7 @@ import java.util.*;
 public class AllComponents extends JPanel
 {
     // instance variables - replace the example below with your own
-    private Board boardPane;
+    protected Board boardPane;
     private JPanel sidebar;
     private JLabel sideLabel;
     
