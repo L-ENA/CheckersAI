@@ -35,11 +35,5 @@ class DragMouseAdapter extends MouseAdapter {
         
        
   }
-  @Override
-  public void mouseReleased(MouseEvent e) {
-    Field f = (Field) e.getSource();  
-    Main.updateState(f.i, f.j, link);
-        
-       
-  }
+  
 }
