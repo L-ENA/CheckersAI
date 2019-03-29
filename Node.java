@@ -10,7 +10,8 @@ public class Node
     // instance variables - replace the example below with your own
     protected ArrayList<Integer> index;
     protected OCCUPY oc;
-    
+    protected int i;
+    protected int j;
 
     /**
      * Constructor for objects of class Node
@@ -21,6 +22,8 @@ public class Node
         this.index=new ArrayList<>();
         this.index.add(i);
         this.index.add(j);
+        this.i = i;
+        this.j = j;
         
     }
 

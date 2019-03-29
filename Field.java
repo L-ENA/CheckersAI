@@ -72,6 +72,7 @@ public class Field extends JLabel
     
     public void setIC(String path){
         this.setIcon(new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(70, 70, 4)));
+        this.link=path;
     }
 
     /**

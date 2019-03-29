@@ -79,6 +79,12 @@ public class Board extends JPanel
         f.setIC(link);
         f.addMouseListener(listener);
         f.setTransferHandler(new TransferHandler("icon") {
+            
+            int dropI;
+            int dropJ;
+            
+            int sourceI;
+            int sourceJ;
             /////////enable moving instead of copying
             @Override
             public int getSourceActions(JComponent c) {///to allow move option
@@ -89,16 +95,19 @@ public class Board extends JPanel
             @Override
             protected void exportDone(JComponent source, Transferable data, int action) {//to delete the source image
                 if (action == MOVE){
-                    ((Field) source).setIC("");
-                    
+                    Main.updateState(dropI, dropJ, ((Field) source).link);//updating the state
+                    ((Field) source).setIC("");///removing item from source
                 }
                 
             }
+            
             @Override
             public boolean importData(TransferHandler.TransferSupport info) {
                 
                 Field dropped = (Field) info.getComponent();
                 System.out.println("Dropped at" + dropped.i);
+                dropI=dropped.i;
+                dropJ=dropped.j;
                 return super.importData(info);
             }
             

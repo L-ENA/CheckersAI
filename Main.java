@@ -11,6 +11,8 @@ public class Main
     private Gui gui;
     protected static ArrayList<Node> initState;
     protected static LinkedHashMap<ArrayList<Integer>, Node> state = new LinkedHashMap<ArrayList<Integer>, Node>();
+    protected static int[][] easyState = new int[8][8];
+    
     /**
      * Constructor for objects of class Main
      */
@@ -64,8 +66,35 @@ public class Main
         for (Node n:initState){
             state.put(n.index,n);
         }
-              
+        
+        easyState();
     }
+    
+    private static void easyState(){
+        Iterator it = state.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            Node n = (Node) pair.getValue();
+            int i=n.i;
+            int j=n.j;
+            easyState[i][j]=n.oc.getStatus();
+            //it.remove(); // avoids a ConcurrentModificationException
+        }
+        
+    }    
+    
+    private static void printEasyState(){
+        for (int[] x : easyState)
+        {
+            for (int y : x)
+            {
+                System.out.print(y + " ");
+            }
+            System.out.println();
+        }
+    }
+        
+    
     
     public static boolean canMove(ArrayList<Integer> pos){
         ArrayList<Node> candidates = new ArrayList<Node>();//to store all possible candidate nodes
@@ -100,11 +129,21 @@ public class Main
     }
     
     //////problematic
-    public static void updateState(int i, int j, String link){
+    public static void updateState(int i, int j, String lastDragged){
         for(OCCUPY o : OCCUPY.values()){
-            if(o.getLink().equals(link))
-                state.put(toList(i,j), new Node(i,j,o));
-                System.out.println("updated");
+            if(o.getLink().equals(lastDragged)){
+                
+                System.out.println("update value: "+ o.getStatus());
+                System.out.println("Old: " + easyState[i][j]);
+                easyState[i][j]=o.getStatus();
+                System.out.println("New: " + easyState[i][j]);
+                printEasyState();
+                break;
+            }
+                
+                
         }
+        
+        
     }
 }
