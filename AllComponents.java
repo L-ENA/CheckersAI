@@ -18,15 +18,24 @@ public class AllComponents extends JPanel
     
     private static final int wide = 1000;
     private static final int high = 700;
-
+    
     /**
      * Constructor for objects of class AllComponents
      */
-    public AllComponents()
+    public AllComponents(Main game)
     {
         // initialise instance variables
         super(new GridBagLayout());
-        addBoard();
+        c = new GridBagConstraints();//to manage layout
+        c.fill = GridBagConstraints.BOTH;//stretch both horizontally and vertically
+        c.weighty = 1;//sets size of this panel compared with other panels: they all stretch over the whole height
+        c.weightx = 0.8;//sets size of this panel compared with other panels: this one is slightly small in x direction
+        c.gridx = 0;//grid coordinates where the panel will sit
+        c.gridy = 0;
+        c.anchor = GridBagConstraints.FIRST_LINE_START;//if window is resized
+        
+        boardPane=new Board(game);
+        this.add(boardPane, c);
         addSidebar();
         //this.setSize(getPreferredSize());
         
@@ -40,16 +49,7 @@ public class AllComponents extends JPanel
      */
     private void addBoard()
     {
-        c = new GridBagConstraints();//to manage layout
-        c.fill = GridBagConstraints.BOTH;//stretch both horizontally and vertically
-        c.weighty = 1;//sets size of this panel compared with other panels: they all stretch over the whole height
-        c.weightx = 0.8;//sets size of this panel compared with other panels: this one is slightly small in x direction
-        c.gridx = 0;//grid coordinates where the panel will sit
-        c.gridy = 0;
-        c.anchor = GridBagConstraints.FIRST_LINE_START;//if window is resized
         
-        boardPane=new Board();
-        this.add(boardPane, c);
     }
     
     private void addSidebar(){

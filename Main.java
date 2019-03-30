@@ -1,4 +1,6 @@
 import java.util.*;
+import java.util.Observable;
+import java.util.Observer;
 /**
  * Write a description of class Main here.
  *
@@ -9,28 +11,36 @@ public class Main
 {
     // instance variables - replace the example below with your own
     private Gui gui;
-    protected static ArrayList<Node> initState;
-    protected static LinkedHashMap<ArrayList<Integer>, Node> state = new LinkedHashMap<ArrayList<Integer>, Node>();
-    protected static int[][] easyState = new int[8][8];
+   
+    protected ArrayList<Node> initState;
+    protected LinkedHashMap<ArrayList<Integer>, Node> state = new LinkedHashMap<ArrayList<Integer>, Node>();
+    protected int[][] easyState = new int[8][8];
     
+    int iDest;
+    int jDest;
+    int iSource;
+    int jSource;
+    String currentLink;
     /**
      * Constructor for objects of class Main
      */
     public Main()
     {
-        gui = new Gui();
+        gui = new Gui(this);
         initState = new ArrayList<Node>();
-        makeInit();
-        updateAll();
+        makeInit();//creating internal state
+        updateAll();//using this state to update the gui
+        //gd.addObserver(this);
+        
+    }
+    
+    protected void printTest(){
+        System.out.println("blabla");
     }
     
     private void updateAll(){
         for (ArrayList<Integer> n: state.keySet()){
-            
-                
             gui.componentPane.boardPane.update(n, state.get(n).oc.getLink());
-                
-            
         }
         gui.componentPane.boardPane.visualise();
     }
@@ -70,7 +80,9 @@ public class Main
         easyState();
     }
     
-    private static void easyState(){
+    
+    
+    private void easyState(){
         Iterator it = state.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
@@ -83,7 +95,7 @@ public class Main
         
     }    
     
-    private static void printEasyState(){
+    private void printEasyState(){
         for (int[] x : easyState)
         {
             for (int y : x)
@@ -96,7 +108,8 @@ public class Main
         
     
     
-    public static boolean canMove(ArrayList<Integer> pos){
+    public boolean canMove(ArrayList<Integer> pos){
+        
         ArrayList<Node> candidates = new ArrayList<Node>();//to store all possible candidate nodes
         Node current=state.get(pos);//current node
         int i = pos.get(0);
@@ -128,22 +141,39 @@ public class Main
         return ret;
     }
     
+    
     //////problematic
-    public static void updateState(int i, int j, String lastDragged){
-        for(OCCUPY o : OCCUPY.values()){
-            if(o.getLink().equals(lastDragged)){
-                
-                System.out.println("update value: "+ o.getStatus());
-                System.out.println("Old: " + easyState[i][j]);
-                easyState[i][j]=o.getStatus();
-                System.out.println("New: " + easyState[i][j]);
-                printEasyState();
-                break;
-            }
-                
-                
-        }
+    private void updateState(){
+        int newVal=OCCUPY.mapString(currentLink);
+        easyState[iSource][jSource]=0;
+        easyState[iDest][jDest]=newVal;
         
+        printEasyState();
         
+    }
+    
+    /**
+     * setting the source of the last gui event
+     */
+    public void setSource(int i,int j, String lnk)
+    {
+        // put your code here
+        this.iSource= i;
+        this.jSource=j;
+        this.currentLink=lnk;
+        updateState();
+    }
+    
+    
+    
+    /**
+     * setting the destination info from the last gui event
+     */
+    public void setDest(int i,int j)
+    {
+        // put your code here
+        this.iDest= i;
+        this.jDest=j;
+        //System.out.println("Dest" + this.iDest+ this.jDest);
     }
 }

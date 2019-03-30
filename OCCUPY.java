@@ -24,4 +24,20 @@ public enum OCCUPY
         this.description = description;
         this.status=status;
     }
+    
+    public static int mapString(String link){
+        switch(link) 
+        { 
+            case "whiteNorm.png": 
+                return 1; 
+            case "blackNorm.png": 
+                return 2; 
+            case "blackKing.png": 
+                return 3; 
+            case "whiteKing.png": 
+                return 4;     
+            default: 
+                return 0; 
+        } 
+    }
 }

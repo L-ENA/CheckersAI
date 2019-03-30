@@ -6,6 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 import java.awt.event.MouseListener;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import java.util.Observable;
 /**
  * Write a description of class Board here.
  *
@@ -19,11 +24,11 @@ public class Board extends JPanel
     int width = 8;
     
     LinkedHashMap<ArrayList<Integer>, Field> squares = new LinkedHashMap<ArrayList<Integer>, Field>();
-    
+    Main game;
     /**
      * Constructor for objects of class Board
      */
-    public Board()
+    public Board(Main game)
     {
         
   
@@ -45,6 +50,7 @@ public class Board extends JPanel
         
         
         visualise();
+        this.game=game;
     }
     
     ////visualising board according to the current gui state
@@ -71,20 +77,32 @@ public class Board extends JPanel
     {
         //squares.put(indexNew, new Field(indexNew, link));
         
-        MouseListener listener = new DragMouseAdapter(indexNew, link);
+        MouseListener listener = new DragMouseAdapter(indexNew, link){
+           
+           @Override 
+           public void mousePressed(MouseEvent e) {
+               JComponent c = (JComponent) e.getSource();
+               
+               TransferHandler handler = c.getTransferHandler();
+               System.out.println("Click!");
+               
+               if(game.canMove(this.pos)){
+                   handler.exportAsDrag(c, e, TransferHandler.MOVE);
+                }
+                
+               
+           }
+        
+        };
         
         //String key = String.valueOf(indexNew[0])+","+String.valueOf(indexNew[1]);
         Field f = squares.get(indexNew);
         //System.out.println(squares.keySet());
         f.setIC(link);
         f.addMouseListener(listener);
-        f.setTransferHandler(new TransferHandler("icon") {
+        f.setTransferHandler(new TransferHandler("icon"){
             
-            int dropI;
-            int dropJ;
-            
-            int sourceI;
-            int sourceJ;
+        
             /////////enable moving instead of copying
             @Override
             public int getSourceActions(JComponent c) {///to allow move option
@@ -95,7 +113,8 @@ public class Board extends JPanel
             @Override
             protected void exportDone(JComponent source, Transferable data, int action) {//to delete the source image
                 if (action == MOVE){
-                    Main.updateState(dropI, dropJ, ((Field) source).link);//updating the state
+                    
+                    game.setSource(((Field) source).i, ((Field) source).j, ((Field) source).link);//updating the current source
                     ((Field) source).setIC("");///removing item from source
                 }
                 
@@ -105,12 +124,12 @@ public class Board extends JPanel
             public boolean importData(TransferHandler.TransferSupport info) {
                 
                 Field dropped = (Field) info.getComponent();
-                System.out.println("Dropped at" + dropped.i);
-                dropI=dropped.i;
-                dropJ=dropped.j;
+                game.setDest(dropped.i, dropped.j);
+                
                 return super.importData(info);
             }
-            
+                
+                
         });
         
         squares.put(indexNew, f);

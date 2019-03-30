@@ -21,6 +21,7 @@ public class Field extends JLabel
     private boolean black;//black is true
     final int DIMENSION = 15;
     protected String link;
+    
 
     protected String type = "";
     /**

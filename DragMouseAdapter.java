@@ -17,23 +17,14 @@ import java.util.*;
  * @version (a version number or a date)
  */
 class DragMouseAdapter extends MouseAdapter {
-   private ArrayList<Integer> pos; 
+   ArrayList<Integer> pos; 
    private String link;
    public DragMouseAdapter(ArrayList<Integer> pos, String link){
        super(); 
        this.pos=pos;
        this.link=link;
    }
-  @Override 
-  public void mousePressed(MouseEvent e) {
-    JComponent c = (JComponent) e.getSource();
-    TransferHandler handler = c.getTransferHandler();
-    System.out.println("Click!");
-    if(Main.canMove(pos)){
-        handler.exportAsDrag(c, e, TransferHandler.MOVE);
-    }
-        
-       
-  }
+   
+   
   
 }
