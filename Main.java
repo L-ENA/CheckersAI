@@ -34,11 +34,9 @@ public class Main
         
     }
     
-    protected void printTest(){
-        System.out.println("blabla");
-    }
     
-    private void updateAll(){
+    
+    private void updateAll(){//////updating the Gui to display results of the last move and to set the new listeners and constraints
         for (ArrayList<Integer> n: state.keySet()){
             gui.componentPane.boardPane.update(n, state.get(n).oc.getLink());
         }
@@ -110,28 +108,48 @@ public class Main
     
     public boolean canMove(ArrayList<Integer> pos){
         
-        ArrayList<Node> candidates = new ArrayList<Node>();//to store all possible candidate nodes
-        Node current=state.get(pos);//current node
+        ArrayList <int[]> candidates = new ArrayList<int[]>();//to store all possible candidate nodes
+        //Node current=state.get(pos);//current node
+        
         int i = pos.get(0);
         int j = pos.get(1);
-        
-        
-        if(current.oc.equals(OCCUPY.WHITE)){
-            /////////////////////////////////////ccetting the candidate notes that are possible in a forward move by creating their keys and pulling the nodes
+        int type = easyState[i][j];
+        System.out.println("We have a " + type);
+        if(type==1){//a white piece was selected
+            System.out.println("Lets go");
             if(i>0 && j>0){
-                if (state.get(toList(i-1, j-1)).oc.equals(OCCUPY.FREE)) 
-                    candidates.add(state.get(toList(i-1, j-1)));
+                if (easyState[i-1][j-1]==0) 
+                    candidates.add(new int[]{i-1,j-1});
                 }    
-            if(i>0 && j<7)    
-                if (state.get(toList(i-1, j+1)).oc.equals(OCCUPY.FREE)) 
-                    candidates.add(state.get(toList(i-1, j+1)));
+            if(i>0 && j<7) {   
+                if (easyState[i-1][j+1]==0) 
+                    candidates.add(new int[]{i-1,j+1});
                 } 
+                
+                
+                
+            if(candidates.size()>0)
+                return true;
+                else
+                return false;
+        } else {
+            System.out.println("choose a white piece please");
+        }
+        
+        
+        //if(current.oc.equals(OCCUPY.WHITE)){
+            /////////////////////////////////////ccetting the candidate notes that are possible in a forward move by creating their keys and pulling the nodes
+            //if(i>0 && j>0){
+               // if (state.get(toList(i-1, j-1)).oc.equals(OCCUPY.FREE)) 
+                   // candidates.add(state.get(toList(i-1, j-1)));
+               // }    
+           // if(i>0 && j<7)    
+               // if (state.get(toList(i-1, j+1)).oc.equals(OCCUPY.FREE)) 
+                   // candidates.add(state.get(toList(i-1, j+1)));
+              //  } 
             
               
-        if(candidates.size()>0)
-            return true;
-        else
-            return false;
+        return false;
     }
 
     private static ArrayList<Integer> toList(int i, int j){///helper to quickly init array list
@@ -148,7 +166,7 @@ public class Main
         easyState[iSource][jSource]=0;
         easyState[iDest][jDest]=newVal;
         
-        printEasyState();
+        //printEasyState();
         
     }
     
