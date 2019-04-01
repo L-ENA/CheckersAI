@@ -22,7 +22,7 @@ public class Board extends JPanel
     // instance variables - replace the example below with your own
     int length = 8;
     int width = 8;
-    
+    Validator val = new Validator();//checks if drag and drops are valid moves
     LinkedHashMap<ArrayList<Integer>, Field> squares = new LinkedHashMap<ArrayList<Integer>, Field>();
     Main game;
     /**
@@ -70,8 +70,52 @@ public class Board extends JPanel
         this.setVisible(true);
     }
     
+    public void updateNoListeners(ArrayList<Integer> indexNew, String link){
+        Field f = squares.get(indexNew);
+        //System.out.println(squares.keySet());
+        f.setIC(link);
+        squares.put(indexNew, f);
+    }
+    
+    public void addTransfer(ArrayList<Integer> indexNew){
+        Field f = squares.get(indexNew);
+        MouseListener listener = new DragMouseAdapter(){
+           
+           @Override 
+           public void mousePressed(MouseEvent e) {
+              System.out.println("I was clicked!");
+           }
+        
+        };
+        
+        f.setTransferHandler(new TransferHandler("icon"){
+            
+        
+            /////////enable moving instead of copying
+            @Override
+            public int getSourceActions(JComponent c) {///to allow move option
+                return COPY | MOVE;
+            }
+            
+            
+            ///importing new checkers picture
+            @Override
+            public boolean importData(TransferHandler.TransferSupport info) {
+                System.out.println("imp data");
+                Field dropped = (Field) info.getComponent();
+                val.setDest(dropped.i, dropped.j);
+                game.setDest(dropped.i, dropped.j);
+                
+                return super.importData(info);
+            }
+                
+                
+        });
+        
+        squares.put(indexNew, f);
+    }
     /**
-     * checking if this is the right field, and updating it
+     * checking if this is the right field, and updating it with clickable and transferhandler that can handle if the checkers is dropped back
      */
     public void update(ArrayList<Integer> indexNew, String link)
     {
@@ -113,21 +157,16 @@ public class Board extends JPanel
             @Override
             protected void exportDone(JComponent source, Transferable data, int action) {//to delete the source image
                 if (action == MOVE){
-                    
+                    System.out.println("exp done");
+                    val.setSource(((Field) source).i, ((Field) source).j);
+                    val.getFeedback();
                     game.setSource(((Field) source).i, ((Field) source).j, ((Field) source).link);//updating the current source
-                    ((Field) source).setIC("");///removing item from source
+                    //((Field) source).setIC("");///removing item from source
                 }
                 
             }
             
-            @Override
-            public boolean importData(TransferHandler.TransferSupport info) {
-                
-                Field dropped = (Field) info.getComponent();
-                game.setDest(dropped.i, dropped.j);
-                
-                return super.importData(info);
-            }
+            
                 
                 
         });

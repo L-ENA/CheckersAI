@@ -12,35 +12,111 @@ public class Main
     // instance variables - replace the example below with your own
     private Gui gui;
    
-    protected ArrayList<Node> initState;
-    protected LinkedHashMap<ArrayList<Integer>, Node> state = new LinkedHashMap<ArrayList<Integer>, Node>();
-    protected int[][] easyState = new int[8][8];
     
-    int iDest;
-    int jDest;
-    int iSource;
-    int jSource;
+    protected int[][] myBoard = new int[8][8];
+    
+    int iDest,jDest,iSource,jSource;
     String currentLink;
+    
+    List<Position> freePositions;
+    ArrayList<Position> forcedPositions;
+    List<PositionsAndScores> successorEvaluations;
+    
+    
     /**
      * Constructor for objects of class Main
      */
     public Main()
     {
         gui = new Gui(this);
-        initState = new ArrayList<Node>();
+        
         makeInit();//creating internal state
         updateAll();//using this state to update the gui
         //gd.addObserver(this);
         
+        
+    }
+    
+    private void play(){
+        
+        if(!gameOver()){
+            System.out.println("new round");
+            updateAll();
+        }
+    }
+    
+    public List<Position> getAvailableStates() {///looking for free spaces on the board
+        freePositions = new ArrayList<>();
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                // is the current position available?
+                if (myBoard[i][j] == 0) {
+                    freePositions.add(new Position(i, j));
+                }
+            }
+        }
+        return freePositions;
     }
     
     
     
     private void updateAll(){//////updating the Gui to display results of the last move and to set the new listeners and constraints
-        for (ArrayList<Integer> n: state.keySet()){
-            gui.componentPane.boardPane.update(n, state.get(n).oc.getLink());
+        boolean forced =false;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                // current board state to gui
+                forcedMove(new Position(i,j));//sees if there are forced moves
+                if(forcedPositions.size()>0){//updating gui with listeners
+                   gui.componentPane.boardPane.update(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
+                   forced=true;//from now on, only states that lead kicking out an enemy will be updated with the action listeners in gui
+                   for(Position pos: forcedPositions){
+                       gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
+                   }
+                } 
+                gui.componentPane.boardPane.updateNoListeners(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
+            }
         }
+        
         gui.componentPane.boardPane.visualise();
+        printmyBoard();
+    }
+    
+    private void forcedMove(Position pos){
+        boolean beats = false;
+        forcedPositions = new ArrayList<Position>();
+        if (myBoard[pos.i][pos.j]==1){//it is a normal white stone
+            
+            if(pos.i>0 && pos.j>0){//looking at front left
+                if (myBoard[pos.i-1][pos.j-1]==2||myBoard[pos.i-1][pos.j-1]==3){ //if there is an enemy ahead
+                    try{
+                    if(myBoard[pos.i-2][pos.j-2]==0){//left back of enemy
+                        forcedPositions.add(new Position(pos.i-2,pos.j-2));
+                        //recursion for getting all forced moves forcedMove(player, new Position(pos.i-2,pos.j-2));
+                    }
+                }catch (Exception e){}
+                    try{
+                    if(myBoard[pos.i-2][pos.j]==0){//right back
+                        forcedPositions.add(new Position(pos.i-2,pos.j));
+                    }
+                }catch(Exception e){}
+                }
+            }
+            
+            if(pos.i>0 && pos.j<7) {   
+                if (myBoard[pos.i-1][pos.j+1]==2||myBoard[pos.i-1][pos.j+1]==3){ //enemy to front right
+                    try{
+                    if(myBoard[pos.i-2][pos.j]==0){//left back of enemy
+                        forcedPositions.add(new Position(pos.i-2,pos.j));
+                    }
+                    }catch (Exception e){}
+                    try{
+                    if(myBoard[pos.i-2][pos.j+2]==0){//right back
+                        forcedPositions.add(new Position(pos.i-2,pos.j+2));
+                    }
+                    }catch (Exception e){}
+                }
+            }
+        }
     }
 
     /**
@@ -54,47 +130,34 @@ public class Main
         int[] white = new int[]{7, 0, 7,2,7,4,7,6,6,1,6,3,6,5,6,7,5,0,5,2,5,4,5,6};
         //int[] white = new int[]{7, 0, 7,2};
         for (int i = 0; i<white.length-1; i+=2){
-            initState.add(new Node(white[i],white[i+1], OCCUPY.WHITE));
+            System.out.println(white[i]);
+            myBoard[white[i]][white[i+1]]=1;
         }
         
-        int[] black = new int[]{0, 1, 0,3,0,5,0,7,1,0,1,2,1,4,1,6,2,1,2,3,2,5,2,7};
+        int[] black = new int[]{0, 1, 0,3,0,5,0,7,1,0,1,2,1,4,1,6,2,1,2,3,2,5,2,7,4,5};
         //int[] black = new int[]{1,6,0, 1, 0,3,0,5,0,7,1,0,1,2, 1,4};
         for (int i = 0; i<black.length-1; i+=2){
-            initState.add(new Node(black[i],black[i+1], OCCUPY.BLACK));
+            myBoard[black[i]][black[i+1]]=2;
             
         }
         
-        int[] free = new int[]{4,1,4,3,4,5,4,7,3,0,3,2,3,4,3,6};
+        int[] free = new int[]{4,1,4,3,4,7,3,0,3,2,3,4,3,6};
         //int[] free = new int[]{4,1,4,3};
         
         for (int i = 0; i<free.length-1; i+=2){
-            initState.add(new Node(free[i],free[i+1], OCCUPY.FREE));
+            myBoard[free[i]][free[i+1]]=0;
         }
         
-        for (Node n:initState){
-            state.put(n.index,n);
-        }
         
-        easyState();
+        printmyBoard();
+        
+        
     }
     
     
     
-    private void easyState(){
-        Iterator it = state.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            Node n = (Node) pair.getValue();
-            int i=n.i;
-            int j=n.j;
-            easyState[i][j]=n.oc.getStatus();
-            //it.remove(); // avoids a ConcurrentModificationException
-        }
-        
-    }    
-    
-    private void printEasyState(){
-        for (int[] x : easyState)
+    private void printmyBoard(){
+        for (int[] x : myBoard)
         {
             for (int y : x)
             {
@@ -113,16 +176,16 @@ public class Main
         
         int i = pos.get(0);
         int j = pos.get(1);
-        int type = easyState[i][j];
+        int type = myBoard[i][j];
         System.out.println("We have a " + type);
         if(type==1){//a white piece was selected
-            System.out.println("Lets go");
+            
             if(i>0 && j>0){
-                if (easyState[i-1][j-1]==0) 
+                if (myBoard[i-1][j-1]==0) 
                     candidates.add(new int[]{i-1,j-1});
                 }    
             if(i>0 && j<7) {   
-                if (easyState[i-1][j+1]==0) 
+                if (myBoard[i-1][j+1]==0) 
                     candidates.add(new int[]{i-1,j+1});
                 } 
                 
@@ -137,16 +200,6 @@ public class Main
         }
         
         
-        //if(current.oc.equals(OCCUPY.WHITE)){
-            /////////////////////////////////////ccetting the candidate notes that are possible in a forward move by creating their keys and pulling the nodes
-            //if(i>0 && j>0){
-               // if (state.get(toList(i-1, j-1)).oc.equals(OCCUPY.FREE)) 
-                   // candidates.add(state.get(toList(i-1, j-1)));
-               // }    
-           // if(i>0 && j<7)    
-               // if (state.get(toList(i-1, j+1)).oc.equals(OCCUPY.FREE)) 
-                   // candidates.add(state.get(toList(i-1, j+1)));
-              //  } 
             
               
         return false;
@@ -163,10 +216,13 @@ public class Main
     //////problematic
     private void updateState(){
         int newVal=OCCUPY.mapString(currentLink);
-        easyState[iSource][jSource]=0;
-        easyState[iDest][jDest]=newVal;
+        myBoard[iSource][jSource]=0;
+        myBoard[iDest][jDest]=newVal;
         
-        //printEasyState();
+        
+        /////////////now the player can make the next move
+        play();
+        
         
     }
     
@@ -193,5 +249,43 @@ public class Main
         this.iDest= i;
         this.jDest=j;
         //System.out.println("Dest" + this.iDest+ this.jDest);
+    }
+    
+    private boolean aiHasWon() {//looks if the player has any pieces left on the board
+        // ai is black here
+        int countPieces=0;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                // is the current position available?
+                if (myBoard[i][j] == 1 || myBoard[i][j] == 4) {
+                    countPieces++;
+                }
+            }
+        }
+        if(countPieces>0){
+            return false;
+        }
+        return true;
+    }
+    private boolean playerHasWon() {//looks if the ai has any pieces left on the board
+        // ai is black here
+        int countPieces=0;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                // is the current position available?
+                if (myBoard[i][j] == 2 || myBoard[i][j] == 3) {
+                    countPieces++;
+                }
+            }
+        }
+        if(countPieces>0){
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean gameOver() {
+        //Game is over if any player has won, or the board is filled with pieces (a draw)
+        return (aiHasWon() ||playerHasWon());
     }
 }

@@ -40,4 +40,20 @@ public enum OCCUPY
                 return 0; 
         } 
     }
+    
+    public static String mapStatus(int status){
+        switch(status) 
+        { 
+            case 1: 
+                return "whiteNorm.png"; 
+            case 2: 
+                return "blackNorm.png"; 
+            case 3: 
+                return "blackKing.png"; 
+            case 4: 
+                return "whiteKing.png";     
+            default: 
+                return ""; 
+        } 
+    }
 }

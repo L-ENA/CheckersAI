@@ -25,6 +25,8 @@ class DragMouseAdapter extends MouseAdapter {
        this.link=link;
    }
    
-   
+   public DragMouseAdapter(){
+       super();
+   }
   
 }
