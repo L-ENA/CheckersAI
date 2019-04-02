@@ -18,7 +18,7 @@ public class Field extends JLabel
     protected int i;
     protected int j;
     protected int[] index;
-    private boolean black;//black is true
+    protected boolean black;//black is true
     final int DIMENSION = 15;
     protected String link;
     

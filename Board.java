@@ -2,7 +2,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.Set;
 import java.awt.event.MouseListener;
 import java.awt.datatransfer.Transferable;
@@ -10,7 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import java.util.Observable;
+ 
 /**
  * Write a description of class Board here.
  *
@@ -53,6 +53,9 @@ public class Board extends JPanel
         this.game=game;
     }
     
+    protected void addValidationMap(HashMap<ArrayList<Integer>, ArrayList<Position>> validatingPositions){
+        val.updateHashMap(validatingPositions);
+    }
     ////visualising board according to the current gui state
     protected void visualise(){
         this.removeAll();
@@ -72,21 +75,16 @@ public class Board extends JPanel
     
     public void updateNoListeners(ArrayList<Integer> indexNew, String link){
         Field f = squares.get(indexNew);
+        f = new Field(f.index, f.black);
         //System.out.println(squares.keySet());
         f.setIC(link);
+        
         squares.put(indexNew, f);
     }
     
     public void addTransfer(ArrayList<Integer> indexNew){
         Field f = squares.get(indexNew);
-        MouseListener listener = new DragMouseAdapter(){
-           
-           @Override 
-           public void mousePressed(MouseEvent e) {
-              System.out.println("I was clicked!");
-           }
         
-        };
         
         f.setTransferHandler(new TransferHandler("icon"){
             
@@ -103,12 +101,30 @@ public class Board extends JPanel
             public boolean importData(TransferHandler.TransferSupport info) {
                 System.out.println("imp data");
                 Field dropped = (Field) info.getComponent();
-                val.setDest(dropped.i, dropped.j);
+                
                 game.setDest(dropped.i, dropped.j);
                 
                 return super.importData(info);
             }
+            @Override
+            public boolean canImport(TransferHandler.TransferSupport info) {
                 
+                Field dropped = (Field) info.getComponent();
+                val.tryDestination(dropped.i, dropped.j);
+                //System.out.println(dropped.i+ " "+ dropped.j);
+                if(val.validateDrop())
+                    return true;
+                else {
+                    try{
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                        System.out.println("I was interrupted!");
+                            e.printStackTrace();
+                        }
+                    return false;
+                }
+                    
+            }
                 
         });
         
@@ -125,15 +141,16 @@ public class Board extends JPanel
            
            @Override 
            public void mousePressed(MouseEvent e) {
-               JComponent c = (JComponent) e.getSource();
+               Field f = (Field)e.getSource();
                
-               TransferHandler handler = c.getTransferHandler();
+               TransferHandler handler = f.getTransferHandler();
                System.out.println("Click!");
                
-               if(game.canMove(this.pos)){
-                   handler.exportAsDrag(c, e, TransferHandler.MOVE);
-                }
-                
+               //if(game.canMove(this.pos)){
+               handler.exportAsDrag(f, e, TransferHandler.MOVE);
+               // }
+               
+               val.setClicked(f.i, f.j); 
                
            }
         
@@ -158,9 +175,10 @@ public class Board extends JPanel
             protected void exportDone(JComponent source, Transferable data, int action) {//to delete the source image
                 if (action == MOVE){
                     System.out.println("exp done");
-                    val.setSource(((Field) source).i, ((Field) source).j);
+                    
                     val.getFeedback();
                     game.setSource(((Field) source).i, ((Field) source).j, ((Field) source).link);//updating the current source
+                    
                     //((Field) source).setIC("");///removing item from source
                 }
                 

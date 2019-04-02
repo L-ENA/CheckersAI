@@ -21,7 +21,7 @@ public class Main
     List<Position> freePositions;
     ArrayList<Position> forcedPositions;
     List<PositionsAndScores> successorEvaluations;
-    
+    HashMap<ArrayList<Integer>, ArrayList<Position>> validatingPositions;//stores which field corresponds with which potential moves
     
     /**
      * Constructor for objects of class Main
@@ -58,13 +58,16 @@ public class Main
         return freePositions;
     }
     
-    
+
     
     private void updateAll(){//////updating the Gui to display results of the last move and to set the new listeners and constraints
+        System.out.println("updating all");
         boolean forced =false;
+        validatingPositions =new HashMap<ArrayList<Integer>, ArrayList<Position>>(); 
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
                 // current board state to gui
+                gui.componentPane.boardPane.updateNoListeners(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
                 forcedMove(new Position(i,j));//sees if there are forced moves
                 if(forcedPositions.size()>0){//updating gui with listeners
                    gui.componentPane.boardPane.update(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
@@ -72,11 +75,33 @@ public class Main
                    for(Position pos: forcedPositions){
                        gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
                    }
+                    //adding the forced positions and the candidate fields to the hashmap
+                   
+                   validatingPositions.put(toList(i,j), copyPositions(forcedPositions));
                 } 
-                gui.componentPane.boardPane.updateNoListeners(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
+                
             }
         }
         
+        if(forced == false){
+           for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                // current board state to gui
+                ArrayList<Position> candidates = canMove(i,j);//sees if there are forced moves
+                if(candidates.size()>0){//updating gui with listeners
+                   gui.componentPane.boardPane.update(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
+                   for(Position pos: candidates){
+                       gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
+                   }
+                   //adding the forced positions and the candidate fields to the hashmap
+                   validatingPositions.put(toList(i,j), copyPositions(candidates));
+                } 
+                ///gui.componentPane.boardPane.updateNoListeners(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
+            }
+        } 
+        }
+        gui.componentPane.boardPane.addValidationMap(validatingPositions);
+        System.out.println("val size: " + validatingPositions.size());
         gui.componentPane.boardPane.visualise();
         printmyBoard();
     }
@@ -94,21 +119,15 @@ public class Main
                         //recursion for getting all forced moves forcedMove(player, new Position(pos.i-2,pos.j-2));
                     }
                 }catch (Exception e){}
-                    try{
-                    if(myBoard[pos.i-2][pos.j]==0){//right back
-                        forcedPositions.add(new Position(pos.i-2,pos.j));
-                    }
-                }catch(Exception e){}
+                
+                
+                
                 }
             }
             
             if(pos.i>0 && pos.j<7) {   
                 if (myBoard[pos.i-1][pos.j+1]==2||myBoard[pos.i-1][pos.j+1]==3){ //enemy to front right
-                    try{
-                    if(myBoard[pos.i-2][pos.j]==0){//left back of enemy
-                        forcedPositions.add(new Position(pos.i-2,pos.j));
-                    }
-                    }catch (Exception e){}
+                    
                     try{
                     if(myBoard[pos.i-2][pos.j+2]==0){//right back
                         forcedPositions.add(new Position(pos.i-2,pos.j+2));
@@ -169,40 +188,30 @@ public class Main
         
     
     
-    public boolean canMove(ArrayList<Integer> pos){
+    private ArrayList <Position> canMove(int i, int j){
         
-        ArrayList <int[]> candidates = new ArrayList<int[]>();//to store all possible candidate nodes
+        ArrayList <Position> candidates = new ArrayList<Position>();//to store all possible candidate nodes
         //Node current=state.get(pos);//current node
         
-        int i = pos.get(0);
-        int j = pos.get(1);
+        
         int type = myBoard[i][j];
-        System.out.println("We have a " + type);
+        
         if(type==1){//a white piece was selected
             
             if(i>0 && j>0){
                 if (myBoard[i-1][j-1]==0) 
-                    candidates.add(new int[]{i-1,j-1});
+                    candidates.add(new Position(i-1,j-1));
                 }    
             if(i>0 && j<7) {   
                 if (myBoard[i-1][j+1]==0) 
-                    candidates.add(new int[]{i-1,j+1});
+                    candidates.add(new Position(i-1,j+1));
                 } 
-                
-                
-                
-            if(candidates.size()>0)
-                return true;
-                else
-                return false;
-        } else {
-            System.out.println("choose a white piece please");
-        }
+        } 
         
         
             
               
-        return false;
+        return candidates;
     }
 
     private static ArrayList<Integer> toList(int i, int j){///helper to quickly init array list
@@ -288,4 +297,13 @@ public class Main
         //Game is over if any player has won, or the board is filled with pieces (a draw)
         return (aiHasWon() ||playerHasWon());
     }
+    
+        private ArrayList<Position> copyPositions(ArrayList<Position> source){
+        ArrayList<Position> copy = new ArrayList<Position>();
+        Iterator<Position> iterator = source.iterator();//to traverse the source list
+        while(iterator.hasNext()){
+            copy.add(iterator.next().clone());//creating a clone so that changes on the clone don't affect the original List
+        }
+        return copy;
+}
 }
