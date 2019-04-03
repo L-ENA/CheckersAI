@@ -83,15 +83,16 @@ public class Board extends JPanel
     }
     
     public void addTransfer(ArrayList<Integer> indexNew){
-        Field f = squares.get(indexNew);
+        Field f = squares.get(indexNew);//get the corresponding field
         
-        
+        System.out.println("adding transfer to " + indexNew.get(0) + " " + indexNew.get(1));
         f.setTransferHandler(new TransferHandler("icon"){
             
         
             /////////enable moving instead of copying
             @Override
             public int getSourceActions(JComponent c) {///to allow move option
+                System.out.println("to move");
                 return COPY | MOVE;
             }
             
@@ -108,19 +109,14 @@ public class Board extends JPanel
             }
             @Override
             public boolean canImport(TransferHandler.TransferSupport info) {
-                
+                System.out.println("staaaart4");
                 Field dropped = (Field) info.getComponent();
                 val.tryDestination(dropped.i, dropped.j);
-                //System.out.println(dropped.i+ " "+ dropped.j);
+                //System.out.println("try import "+dropped.i+ " "+ dropped.j);
                 if(val.validateDrop())
                     return true;
                 else {
-                    try{
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                        System.out.println("I was interrupted!");
-                            e.printStackTrace();
-                        }
+                    
                     return false;
                 }
                     
@@ -141,6 +137,7 @@ public class Board extends JPanel
            
            @Override 
            public void mousePressed(MouseEvent e) {
+               System.out.println("staaaart3");
                Field f = (Field)e.getSource();
                
                TransferHandler handler = f.getTransferHandler();
@@ -167,19 +164,28 @@ public class Board extends JPanel
             /////////enable moving instead of copying
             @Override
             public int getSourceActions(JComponent c) {///to allow move option
+                System.out.println("staaaart2");
                 return COPY | MOVE;
+                
             }
             
             //////delete old label
             @Override
             protected void exportDone(JComponent source, Transferable data, int action) {//to delete the source image
+                System.out.println("staaaart1");
                 if (action == MOVE){
                     System.out.println("exp done");
+                    if (!val.getDontUpdate()){//if we are allowed to update
+                        ///////////////////////////////////////////////checking for eliminated checkers
+                        int[] enemyPosition = val.getFeedback();
+                        if(enemyPosition != null){
+                            game.doEnemyElimination(enemyPosition[0], enemyPosition[1]);
+                        }
+                        
+                        game.setSource(((Field) source).i, ((Field) source).j, ((Field) source).link);//updating the current source
+                        //((Field) source).setIC("");///removing item from source
+                    }
                     
-                    val.getFeedback();
-                    game.setSource(((Field) source).i, ((Field) source).j, ((Field) source).link);//updating the current source
-                    
-                    //((Field) source).setIC("");///removing item from source
                 }
                 
             }

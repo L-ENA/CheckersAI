@@ -29,13 +29,13 @@ public enum OCCUPY
         switch(link) 
         { 
             case "whiteNorm.png": 
-                return 1; 
+                return WHITE.getStatus(); 
             case "blackNorm.png": 
-                return 2; 
+                return BLACK.getStatus(); 
             case "blackKing.png": 
-                return 3; 
+                return BK.getStatus(); 
             case "whiteKing.png": 
-                return 4;     
+                return WK.getStatus();     
             default: 
                 return 0; 
         } 
@@ -45,13 +45,13 @@ public enum OCCUPY
         switch(status) 
         { 
             case 1: 
-                return "whiteNorm.png"; 
+                return WHITE.getLink(); 
             case 2: 
-                return "blackNorm.png"; 
+                return BLACK.getLink(); 
             case 3: 
-                return "blackKing.png"; 
+                return BK.getLink(); 
             case 4: 
-                return "whiteKing.png";     
+                return WK.getLink();     
             default: 
                 return ""; 
         } 

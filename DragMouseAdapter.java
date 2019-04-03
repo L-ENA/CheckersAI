@@ -20,13 +20,17 @@ class DragMouseAdapter extends MouseAdapter {
    ArrayList<Integer> pos; 
    private String link;
    public DragMouseAdapter(ArrayList<Integer> pos, String link){
+       
        super(); 
+       System.out.println("staaaart7");
        this.pos=pos;
        this.link=link;
    }
    
    public DragMouseAdapter(){
+       
        super();
+       System.out.println("staaaart8");
    }
   
 }
