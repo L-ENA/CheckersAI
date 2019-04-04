@@ -31,6 +31,7 @@ public class Main
         gui = new Gui(this);
         
         makeInit();//creating internal state
+        visualiseState();
         updateAll();//using this state to update the gui
         //gd.addObserver(this);
         
@@ -83,14 +84,16 @@ public class Main
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
                 // current board state to gui
-                gui.componentPane.boardPane.updateNoListeners(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
+                
+                ////the bug
+                //gui.componentPane.boardPane.updateNoListeners(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
                 forcedMove(new Position(i,j));//sees if there are forced moves
                 if(forcedPositions.size()>0){//updating gui with listeners
                    gui.componentPane.boardPane.update(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
                    forced=true;//from now on, only states that lead to kicking out an enemy will be updated with the action listeners in gui
                    for(Position pos: forcedPositions){
                        gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
-                       //System.out.println("can drop to " + pos.i + " " + pos.j);
+                       System.out.println("FPOS: can drop to " + pos.i + " " + pos.j);
                     }
                     //adding the forced positions and the candidate fields to the hashmap, this is used by the validator in the GUI to terminate illegal moves
                    
@@ -223,6 +226,7 @@ public class Main
             
         }
         
+        myBoard[4][5] = 4;
         //int[] free = new int[]{4,1,4,3,4,7,3,0,3,2,3,6,4,5,3,4};
         //int[] free = new int[]{4,1,4,3};
         

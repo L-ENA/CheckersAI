@@ -48,7 +48,7 @@ public class Validator
         lastClicked = new ArrayList<Integer>();
         lastClicked.add(i);
         lastClicked.add(j);
-        System.out.println("val set clicked" +i +" "+ j);
+        System.out.println("val set clicked (Validator setClicked())" +i +" "+ j);
     }
     
     public void tryDestination(int i, int j){
@@ -62,7 +62,7 @@ public class Validator
     }
     
     public boolean validateDrop(){///check if the last clicked source field is a key in the positions map
-        //System.out.println("Validating drop");
+        System.out.println("ValidateDrop() validator");
         try{
             //System.out.println("LC: " + lastClicked.get(0) + lastClicked.get(1));
             
