@@ -74,7 +74,7 @@ public class Board extends JPanel
     }
     
     public void updateNoListeners(ArrayList<Integer> indexNew, String link){
-        System.out.println(link+ " no listeners "   +indexNew.get(0) + indexNew.get(1));
+        //System.out.println(link+ " no listeners "   +indexNew.get(0) + indexNew.get(1));
         Field f = squares.get(indexNew);
         f = new Field(f.index, f.black);
         //System.out.println(squares.keySet());
@@ -86,7 +86,7 @@ public class Board extends JPanel
     public void addTransfer(ArrayList<Integer> indexNew){
         Field f = squares.get(indexNew);//get the corresponding field
         
-        System.out.println("addTransfer items to " + indexNew.get(0) + " " + indexNew.get(1));
+        //System.out.println("addTransfer items to " + indexNew.get(0) + " " + indexNew.get(1));
         f.setTransferHandler(new TransferHandler("icon"){
             
         
@@ -101,7 +101,7 @@ public class Board extends JPanel
             ///importing new checkers picture
             @Override
             public boolean importData(TransferHandler.TransferSupport info) {
-                System.out.println("imp data (addTransfer method)");
+                //System.out.println("imp data (addTransfer method)");
                 Field dropped = (Field) info.getComponent();
                 
                 game.setDest(dropped.i, dropped.j);
@@ -110,14 +110,16 @@ public class Board extends JPanel
             }
             @Override
             public boolean canImport(TransferHandler.TransferSupport info) {
-                System.out.println("canImport (addTransfer method)");
+                //System.out.println("canImport (addTransfer method)");
                 Field dropped = (Field) info.getComponent();
                 val.tryDestination(dropped.i, dropped.j);
                 //System.out.println("try import "+dropped.i+ " "+ dropped.j);
                 if(val.validateDrop())
                     return true;
                 else {
-                    
+                    try{
+                        Thread.sleep(200);
+                    } catch(InterruptedException e){}
                     return false;
                 }
                     
@@ -138,7 +140,7 @@ public class Board extends JPanel
            
            @Override 
            public void mousePressed(MouseEvent e) {
-               System.out.println("mousePressed (update() )");
+               //System.out.println("mousePressed (update() )");
                Field f = (Field)e.getSource();
                
                TransferHandler handler = f.getTransferHandler();
@@ -148,7 +150,8 @@ public class Board extends JPanel
                handler.exportAsDrag(f, e, TransferHandler.MOVE);
                // }
                
-               val.setClicked(f.i, f.j); 
+               val.setClicked(f.i, f.j);
+               
                System.out.println("val setclicked finished");
            }
         
@@ -165,7 +168,7 @@ public class Board extends JPanel
             /////////enable moving instead of copying
             @Override
             public int getSourceActions(JComponent c) {///to allow move option
-                System.out.println("imp data (update method, getSourceactions)");
+                //System.out.println("imp data (update method, getSourceactions)");
                 return COPY | MOVE;
                 
             }
@@ -173,9 +176,9 @@ public class Board extends JPanel
             //////delete old label
             @Override
             protected void exportDone(JComponent source, Transferable data, int action) {//to delete the source image
-                System.out.println("exportDone update() method");
+                //System.out.println("exportDone update() method");
                 if (action == MOVE){
-                    System.out.println("exp done");
+                    //System.out.println("exp done");
                     if (!val.getDontUpdate()){//if we are allowed to update
                         ///////////////////////////////////////////////checking for eliminated checkers
                         int[] enemyPosition = val.getFeedback();

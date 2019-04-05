@@ -22,7 +22,7 @@ class DragMouseAdapter extends MouseAdapter {
    public DragMouseAdapter(ArrayList<Integer> pos, String link){
        
        super(); 
-       System.out.println("staaaart7");
+       //System.out.println("staaaart7");
        this.pos=pos;
        this.link=link;
    }
@@ -30,7 +30,7 @@ class DragMouseAdapter extends MouseAdapter {
    public DragMouseAdapter(){
        
        super();
-       System.out.println("staaaart8");
+       //System.out.println("staaaart8");
    }
   
 }

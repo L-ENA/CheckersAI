@@ -23,6 +23,7 @@ public class Validator
     private int enemyI;
     private int enemyJ;
     private boolean hit;//caught an enemy!!!
+    private boolean isKing;
     
     
     /**
@@ -32,9 +33,12 @@ public class Validator
     {
         hit=false;
         dontUpdate=false;
+        isKing=false;
     }
     
-    
+    public void setKing(boolean isK){
+        this.isKing = isK;
+    }
     
     public int[] getFeedback(){/////////querying info on checkers eliminated in this move
         if(this.hit){
@@ -48,7 +52,7 @@ public class Validator
         lastClicked = new ArrayList<Integer>();
         lastClicked.add(i);
         lastClicked.add(j);
-        System.out.println("val set clicked (Validator setClicked())" +i +" "+ j);
+        //System.out.println("val set clicked (Validator setClicked())" +i +" "+ j);
     }
     
     public void tryDestination(int i, int j){
@@ -62,7 +66,7 @@ public class Validator
     }
     
     public boolean validateDrop(){///check if the last clicked source field is a key in the positions map
-        System.out.println("ValidateDrop() validator");
+        //System.out.println("ValidateDrop() validator");
         try{
             //System.out.println("LC: " + lastClicked.get(0) + lastClicked.get(1));
             
@@ -96,7 +100,24 @@ public class Validator
     private boolean checkHit(){//find coordinates of hit checkers
         
         int iDiff= (iDropped - lastClicked.get(0));
-        if (Math.abs(iDiff)>1){///////////////the checkers has moved 2 places, so there was a hit and we need to determine the coordinates of the hit piece
+        if(Math.abs(iDiff)>2){
+            int jDiff= (jDropped - lastClicked.get(1));
+            if(iDiff<0){
+                this.enemyI = iDropped+1;
+            } else {
+                this.enemyI = iDropped-1;
+            }
+            
+            if (jDiff>0){
+                this.enemyJ = jDropped -1;
+                
+            } else {
+                this.enemyJ = jDropped +1;
+                
+            }
+            System.out.println("enemy at " + this.enemyI + " " + this.enemyJ);
+            return true;
+        } else if (Math.abs(iDiff)>1){///////////////the checkers has moved 2 places, so there was a normal hit and we need to determine the coordinates of the hit piece
             iDiff = iDiff/2;
             this.enemyI = iDropped-iDiff;
             int jDiff= (jDropped - lastClicked.get(1))/2;
