@@ -22,7 +22,7 @@ public class AllComponents extends JPanel
     /**
      * Constructor for objects of class AllComponents
      */
-    public AllComponents(Main game)
+    public AllComponents()
     {
         // initialise instance variables
         super(new GridBagLayout());
@@ -34,11 +34,16 @@ public class AllComponents extends JPanel
         c.gridy = 0;
         c.anchor = GridBagConstraints.FIRST_LINE_START;//if window is resized
         
-        boardPane=new Board(game);
-        this.add(boardPane, c);
-        addSidebar();
+        
+        
         //this.setSize(getPreferredSize());
         
+    }
+    
+    public void addBoardPane(Board p){
+        this.boardPane=p;
+        this.add(boardPane, c);
+        addSidebar();
     }
 
     /**

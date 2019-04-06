@@ -12,17 +12,22 @@ public class Ai
     protected int[][] state;
     int deCount, seCount, pCount; // cost for dynamic & static evaluation; number of pruning operations
     List<Position> availablePositions;
-    List<PositionsAndScores> successorEvaluations;
+    List<StateAndScores> successorEvaluations;
     ArrayList<int[][]> statesAvailable;
     boolean forced = false;
+    ArrayList<int[][]> candidatesG;//all candidates for a simple diagonal move
+    int heuristic;
+    Random r;
+    
     /**
      * Constructor for objects of class Ai
      */
-    public Ai(int level)
+    public Ai(int level, int heuristic)
     {
         // initialise instance variables
         this.level = level;
-        
+        this.heuristic = heuristic;
+        this.r = new Random();
     }
 
     /**
@@ -41,8 +46,8 @@ public class Ai
             return randomMove();
             
           case 2:
-            System.out.println("Today is Sunday");
-            return randomMove();
+            
+            return bestMove();
           case 3:
             System.out.println("Today is Sunday");
             return randomMove();
@@ -53,24 +58,44 @@ public class Ai
         
     }
     
-    private int[][] checkKingConversion(int [][] state){//if the 7th row includes a normal black piece
+    private int[][] checkKingConversion(int [][] st){//if the 7th row includes a normal black piece
         
-        for(int i = 0;i<state[7].length; i++){
-            if(state[7][i]==2){
-                state[7][i]=3;
+        for(int i = 0;i<st[7].length; i++){
+            if(st[7][i]==2){
+                st[7][i]=3;
+                System.out.println("Converted to king");
             }
             //System.out.println(i);
         }
         
-        return state;
+        return st;
     }
     
     private int[][] randomMove(){
-        startEvaluation();
-        Random r = new Random();
-        //System.out.println("States available: " + statesAvailable.size());
+        statesAvailable = getAvailableStates(state);
+        
         int index = r.nextInt(statesAvailable.size());
         return statesAvailable.get(index);
+    }
+    
+    private int[][] bestMove(){/////returns the best possible state, or, a random selection of equally good best states if there is more than 1
+        startEvaluation();//determine successors
+        int max = Integer.MIN_VALUE;
+        int [][] ret = state;//get best successor
+        ArrayList<int[][]> bestStates = new ArrayList<int[][]>();
+        for(int i=0; i<successorEvaluations.size(); i++){//determine best score
+            if(successorEvaluations.get(i).score > max){
+                max= successorEvaluations.get(i).score;
+            }
+        }
+        
+        for(StateAndScores candidate : successorEvaluations){//filter out the best states
+            if(candidate.score==max){
+                bestStates.add(candidate.state);
+            }
+        }
+        int index = r.nextInt(bestStates.size());//choose best state if there is more than 1
+        return bestStates.get(index);
     }
     
     private void startEvaluation(){
@@ -79,12 +104,19 @@ public class Ai
         pCount = 0;
         successorEvaluations = new ArrayList<>();
         statesAvailable = getAvailableStates(state);
+        scoreForState();
         
-        this.forced=false;
     }
     
-    //private ArrayList<int[][]> 
+    private void scoreForState(){
+        for(int[][] state : statesAvailable){
+            int score = Evaluator.evaluate(state, heuristic);
+            successorEvaluations.add(new StateAndScores(score, state));
+        }
+    }
+    
     private ArrayList<int[][]> getAvailableStates(int[][] someState){
+        this.forced=false;
         ArrayList<int[][]> freePositions = new ArrayList<>();
         //int[][] pastPosition = new int[8][8];
         //System.out.println("trying to grt states... ");
@@ -108,7 +140,7 @@ public class Ai
             for (int i = 0; i < 8; ++i) {
                 for (int j = 0; j < 8; ++j) {
                  //is the current position available in general?
-                ArrayList<int[][]> candidatesG = generalMove(new Position(i,j),someState);
+                generalMove(new Position(i,j),someState);
                 for(int[][] candidate : candidatesG){
                     freePositions.add(candidate);
                     
@@ -122,7 +154,7 @@ public class Ai
         
         
         //if(recursionDepth)
-        System.out.println("has free pos: "+freePositions.size());
+        //System.out.println("has free pos: "+freePositions.size());
         return freePositions;
     }
     
@@ -136,12 +168,18 @@ public class Ai
  
       return true;
     }
+    
+    
     private boolean isFree(int test){
         if(test==0||test==5)
             return true;
         return false;    
     }
-    
+    private boolean isEnemy(int test){
+        if(test==1||test==4)
+            return true;
+        return false;    
+    }
     
     
     
@@ -167,82 +205,76 @@ public class Ai
                 dfs(n);
             }
         }
-    }    
+    } 
     
-    private ArrayList<int[][]> generalMove(Position pos, int[][] someState){
-        ArrayList<int[][]> generalPositions = new ArrayList<int[][]>();
+    private void simpleMove(int iNew,int jNew,Position pos, int[][] someState){//moving and updating the candidate state
+        int[][] stateCopy = cloneState(someState);
+        stateCopy[iNew][jNew]=stateCopy[pos.i][pos.j];//our stone moved there
+        stateCopy[pos.i][pos.j]=5;//the original position is vacated
+        stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
+        candidatesG.add(stateCopy);//add this prospective state
+    }
+    
+    private int[][] captureMove(int iNew,int jNew,Position pos, int[][] someState){//moving and updating the candidate state
+        int[][] stateCopy = cloneState(someState);
+        stateCopy[pos.i+iNew][pos.j+jNew]=stateCopy[pos.i][pos.j];//our stone moved there
+        stateCopy[pos.i][pos.j]=5;//the original position is vacated
+        stateCopy[pos.i+(iNew/2)][pos.j+(jNew/2)]=0;//an enemy was eliminated in the middle
+        stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
+        return stateCopy;
+    }
+    
+    private void generalMove(Position pos, int[][] someState){
+        candidatesG = new ArrayList<int[][]>();
         if(someState[pos.i][pos.j]==2){//a normal black stone
             //System.out.println("testing a black piece");
             if(pos.i<7 && pos.j>0){
                 if (isFree(someState[pos.i+1][pos.j-1])){ //move left
-                    int[][] stateCopy = cloneState(someState);
-                    stateCopy[pos.i+1][pos.j-1]=2;//our stone moved there
-                    stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                    stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
-                    generalPositions.add(stateCopy);//add this prospective state
+                    simpleMove(pos.i+1,pos.j-1,pos, someState);
                     }
                 }    
             if(pos.i<7 && pos.j<7) {   
                 if (isFree(someState[pos.i+1][pos.j+1])){ //move right
-                    int[][] stateCopy = cloneState(someState);
-                    stateCopy[pos.i+1][pos.j+1]=2;//our stone moved there
-                    stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                    stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
-                    generalPositions.add(stateCopy);//add this prospective state
+                    simpleMove(pos.i+1,pos.j+1,pos, someState);
                     }
                 } 
-        } else if (someState[pos.i][pos.j]==3){///////////////////////////////////////////////////////////////it is a King
+         } else if (someState[pos.i][pos.j]==3){///////////////////////////////////////////////////////////////it is a King
             int jLeft = pos.j-1; 
             int jRight = pos.j+1;
             for(int i = pos.i-1; i>0;i--){//up diagonal
                 if(jLeft>0){
                     if(isFree(someState[i][jLeft])){
-                    
-                        int[][] stateCopy = cloneState(someState);
-                        stateCopy[i][jLeft]=3;//our stone moved there
-                        stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                        generalPositions.add(stateCopy);//add this prospective state
+                        simpleMove(i, jLeft, pos, someState);
                         jLeft--;
                     }
                 }
                 if(jRight<7){
                     if(isFree(someState[i][jRight])){    
-                    
-                        int[][] stateCopy = cloneState(someState);
-                        stateCopy[i][jRight]=3;//our stone moved there
-                        stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                        generalPositions.add(stateCopy);//add this prospective state
+                        simpleMove(i, jRight, pos, someState);
                         jRight++;
                     }
-                }    
+                 }    
             }
             jLeft = pos.j-1; 
             jRight = pos.j+1;
             for(int i = pos.i+1; i<7;i++){//down diagonal
                 if(jLeft>0){
                     if(isFree(someState[i][jLeft])){
-                    
-                        int[][] stateCopy = cloneState(someState);
-                        stateCopy[i][jLeft]=3;//our stone moved there
-                        stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                        generalPositions.add(stateCopy);//add this prospective state
+                        simpleMove(i, jLeft, pos, someState);
                         jLeft--;
                     }
                 }    
                 if(jRight<7){    
                     if(isFree(someState[i][jRight])){    
-                    
-                        int[][] stateCopy = cloneState(someState);
-                        stateCopy[i][jRight]=3;//our stone moved there
-                        stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                        generalPositions.add(stateCopy);//add this prospective state
+                        simpleMove(i, jRight, pos, someState);
                         jRight++;
                     }
-                }    
+                 }    
             }
         }
-        return generalPositions;
+        
     }
+    
     private ArrayList<int[][]> forcedMove(int[][] someState){
         
         ArrayList<int[][]> forcedPositions = new ArrayList<int[][]>();
@@ -255,32 +287,21 @@ public class Ai
                 if (someState[pos.i][pos.j]==2){//it is a normal black stone
                     
                     if(pos.i<7 && pos.j>0){//looking at front left. smaller than 0 because board ends at 7, so if I am at 7 there is no more piece to go
-                        if (someState[pos.i+1][pos.j-1]==1||someState[pos.i+1][pos.j-1]==4){ //if there is an enemy ahead to the left
+                        if (isEnemy(someState[pos.i+1][pos.j-1])){ //if there is an enemy ahead to the left
                             try{
                             if(isFree(someState[pos.i+2][pos.j-2])){//left back of enemy is empty
-                                int[][] stateCopy = cloneState(someState);
-                                stateCopy[pos.i+2][pos.j-2]=2;//our stone moved there
-                                stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                                stateCopy[pos.i+1][pos.j-1]=0;//an enemy was eliminated
-                                stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
-                                System.out.println("Black norm can move down left");
-                                forcedPositions.add(stateCopy);
+                                forcedPositions.add(captureMove(2,-2,pos, someState));
                             }
                         }catch (Exception e){}
                         }
                     }
                     
                     if(pos.i<7 && pos.j<7) {   
-                        if (someState[pos.i+1][pos.j+1]==1||someState[pos.i+1][pos.j+1]==4){ //enemy to front right
+                        if (isEnemy(someState[pos.i+1][pos.j+1])){ //enemy to front right
                             
                             try{
                             if(isFree(someState[pos.i+2][pos.j+2])){//right back
-                                int[][] stateCopy = cloneState(someState);
-                                stateCopy[pos.i+2][pos.j+2]=2;//our stone moved there
-                                stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                                stateCopy[pos.i+1][pos.j+1]=0;//an enemy was eliminated
-                                stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
-                                forcedPositions.add(stateCopy);//add this prospective state
+                                forcedPositions.add(captureMove(2,2,pos, someState));//add this prospective state
                             }
                             }catch (Exception e){}
                         }
@@ -296,7 +317,7 @@ public class Ai
                             if (someState[i1][jLeft]==2 || someState[i1][jLeft]==3){//an own piece is in the way
                                 jLeft = -1;
                             } 
-                            else if(someState[i1][jLeft]==1 || someState[i1][jLeft]==4){//there is an enemy piece
+                            else if(isEnemy(someState[i1][jLeft])){//there is an enemy piece
                                 if(isFree(someState[i1-1][jLeft-1])){//there is an empty place behind it
                                     int[][] stateCopy = cloneState(someState);
                                     stateCopy = cloneState(someState);
@@ -315,7 +336,7 @@ public class Ai
                             if(someState[i1][jRight]==2 || someState[i1][jRight]==3){
                                 jRight = 8;
                             } 
-                            else if(someState[i1][jRight]==1 || someState[i1][jRight]==4){//there is an enemy piece
+                            else if(isEnemy(someState[i1][jRight])){//there is an enemy piece
                                 if(isFree(someState[i1-1][jRight+1])){//there is an empty place behind it
                                     int[][] stateCopy = cloneState(someState);
                                     stateCopy = cloneState(someState);
@@ -340,7 +361,7 @@ public class Ai
                             if (someState[i2][jLeft]==2 || someState[i2][jLeft]==3){//an own piece is in the way
                                 jLeft = -1;
                             } 
-                            else if(someState[i2][jLeft]==1 || someState[i2][jLeft]==4){//there is an enemy piece
+                            else if(isEnemy(someState[i2][jLeft])){//there is an enemy piece
                                 if(isFree(someState[i2+1][jLeft-1])){//there is an empty place behind it
                                     int[][] stateCopy = cloneState(someState);
                                     stateCopy = cloneState(someState);
@@ -349,7 +370,7 @@ public class Ai
                                     stateCopy[i2][jLeft]=0;//an enemy was eliminated
                                     //stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
                                     forcedPositions.add(stateCopy);//add this prospective state
-                                    System.out.println("king down left " + i2 + " " + jLeft);
+                                    //System.out.println("king down left " + i2 + " " + jLeft);
                                     jLeft = -1;
                                 } else{
                                     jLeft = -1;//cant jump 2 at once in any move, so this diagonal will not hold more moves
@@ -361,7 +382,7 @@ public class Ai
                             if(someState[i2][jRight]==2 || someState[i2][jRight]==3){
                                 jRight = 8;
                             } 
-                            else if(someState[i2][jRight]==1 || someState[i2][jRight]==4){//there is an enemy piece
+                            else if(isEnemy(someState[i2][jRight])){//there is an enemy piece
                                 if(isFree(someState[i2+1][jRight+1])){//there is an empty place behind it
                                     int[][] stateCopy = cloneState(someState);
                                     stateCopy = cloneState(someState);
@@ -370,7 +391,7 @@ public class Ai
                                     stateCopy[i2][jRight]=0;//an enemy was eliminated
                                     //stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
                                     forcedPositions.add(stateCopy);//add this prospective state
-                                    System.out.println("king down right  " + i2 + " " + jRight);
+                                    //System.out.println("king down right  " + i2 + " " + jRight);
                                     jRight = 8;
                                 } else{
                                     jRight = 8;//cant jump 2 at once in any move, so this diagonal will not hold more moves
@@ -385,16 +406,9 @@ public class Ai
             }
         }
         
-        
+        //System.out.println("Possible capturing moves for this state: " + forcedPositions.size());
         return forcedPositions;
     }
 }
 
-class PositionsAndScores {
-    int score;
-    Position pos;
-    PositionsAndScores(int score, Position pos) {
-        this.score = score;
-        this.pos = pos;
-    }
-}
+

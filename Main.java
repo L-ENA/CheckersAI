@@ -13,7 +13,7 @@ public class Main
     private Gui gui;
    
     
-    protected int[][] myBoard = new int[8][8];
+    protected int[][] myBoard;
     
     int iDest,jDest,iSource,jSource;
     String currentLink;
@@ -23,28 +23,44 @@ public class Main
     List<PositionsAndScores> successorEvaluations;
     HashMap<ArrayList<Integer>, ArrayList<Position>> validatingPositions;//stores which field corresponds with which potential moves
     private Ai ai;
+    boolean forced;///indicates if a forced move requires checking of another move
+    public Board guiBoard;
     /**
      * Constructor for objects of class Main
      */
     public Main()
     {
-        gui = new Gui(this);
+        gui = new Gui();
+        guiBoard =  new Board(this);
+        gui.componentPane.addBoardPane(guiBoard);
+        myBoard = new int[][]{
+        {0,2,0,2,0,2,0,2},////multicatch
+        {2,0,2,0,2,0,2,0},
+        {0,2,0,2,0,2,0,2},
+        {0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0},
+        {1,0,1,0,1,0,1,0},
+        {0,1,0,1,0,1,0,1},
+        {1,0,1,0,1,0,1,0},
         
-        makeInit();//creating internal state
+        };//creating internal state
+        
+        forced =false;
         visualiseState();
         updateAll();//using this state to update the gui
         //gd.addObserver(this);
         
-        ai=new Ai(1);
+        ai=new Ai(2, 3);
     }
     
     private void newPly() {
         
         if(!gameOver()){
             
+            forced=false;//reset forced move status
             deleteTrails();
             
-            //System.out.println("new round");
+            System.out.println("new round");
             ///////////////AI moves
             
             myBoard = ai.getMove(myBoard);
@@ -101,7 +117,7 @@ public class Main
     
     private void updateAll(){//////updating the Gui to display results of the last move and to set the new listeners and constraints
         //System.out.println("updating all");
-        boolean forced =false;
+        
         validatingPositions =new HashMap<ArrayList<Integer>, ArrayList<Position>>(); 
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -112,6 +128,7 @@ public class Main
         
                 if(forcedPositions.size()>0){//updating gui with listeners
                    gui.componentPane.boardPane.update(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
+                   
                    forced=true;//from now on, only states that lead to kicking out an enemy will be updated with the action listeners in gui
                    for(Position pos: forcedPositions){
                        gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
@@ -123,9 +140,10 @@ public class Main
                 } 
             }
         }
-        
+        System.out.println(forced);
         
         if(forced == false){
+           
            for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
                 // current board state to gui
@@ -134,7 +152,8 @@ public class Main
                    gui.componentPane.boardPane.update(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
                    for(Position pos: candidates){
                        gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
-                   }
+                       System.out.println("Can go to " + pos.i +" " + pos.j);
+                    }
                    //adding the forced positions and the candidate fields to the hashmap
                    validatingPositions.put(toList(i,j), copyPositions(candidates));
                 } 
@@ -189,7 +208,7 @@ public class Main
                     }else if(myBoard[down][jLeft]==2||myBoard[down][jLeft]==3){//there is an enemy piece
                             if(myBoard[down+1][jLeft-1]==0||myBoard[down+1][jLeft-1]==5){//if place behind is free
                                 forcedPositions.add(new Position(down+1,jLeft-1));
-                                System.out.println("White king down left ");
+                                
                                 jLeft=-1;
                             } else {//there are 2 pieces behind each other
                                 jLeft=-1;
@@ -204,7 +223,7 @@ public class Main
                     }else if(myBoard[down][jRight]==2||myBoard[down][jRight]==3){
                             if(myBoard[down+1][jRight+1]==0||myBoard[down+1][jRight+1]==5){
                                 forcedPositions.add(new Position(down+1,jRight+1));
-                                System.out.println("White king down right");
+                                
                                 jRight=7;
                             }else {//there are 2 pieces behind each other
                                 jRight=7;
@@ -225,7 +244,7 @@ public class Main
                     }else if(myBoard[up][jLeft]==2||myBoard[up][jLeft]==3){
                             if(myBoard[up-1][jLeft-1]==0||myBoard[up-1][jLeft-1]==5){
                                 forcedPositions.add(new Position(up-1,jLeft-1));
-                                System.out.println("White king up left");
+                                
                                 jLeft=-1;
                             }else {//there are 2 pieces behind each other
                                 jLeft=-1;
@@ -240,7 +259,7 @@ public class Main
                     }else if(myBoard[up][jRight]==2||myBoard[up][jRight]==3){
                             if(myBoard[up-1][jRight+1]==0||myBoard[up-1][jRight+1]==5){
                                 forcedPositions.add(new Position(up-1,jRight+1));
-                                System.out.println("White king up right");
+                                
                                 jRight=7;
                             }else {//there are 2 pieces behind each other
                                 jRight=7;
@@ -253,47 +272,13 @@ public class Main
                 }
             }
                 
-             return forcedPositions;   
-            }
+        return forcedPositions;   
+    }
         
         
     
 
-    /**
-     * An example of a method - replace this comment with your own
-     *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
-     */
-    private void makeInit()
-    {
-        int[] white = new int[]{7, 0, 7,2,7,4,7,6,6,1,6,3,6,5,6,7,5,0,5,2,5,4,5,6};
-        //int[] white = new int[]{2,5, 3,4, 5,2, 5,4};
-        for (int i = 0; i<white.length-1; i+=2){
-            //System.out.println(white[i]);
-            myBoard[white[i]][white[i+1]]=1;
-        }
-        
-        int[] black = new int[]{0, 1, 0,3,0,5,0,7,1,0,1,2,1,4,1,6,2,1,2,3,2,5,2,7};
-        //int[] black = new int[]{0,7};
-        for (int i = 0; i<black.length-1; i+=2){
-            myBoard[black[i]][black[i+1]]=2;
-            
-        }
-        
-        //myBoard[4][5] = 4;
-        //int[] free = new int[]{4,1,4,3,4,7,3,0,3,2,3,6,4,5,3,4};
-        //int[] free = new int[]{4,1,4,3};
-        
-        //for (int i = 0; i<free.length-1; i+=2){
-            //myBoard[free[i]][free[i+1]]=0;
-        //}
-        
-        
-        //printmyBoard();
-        
-        
-    }
+    
     
     
     
@@ -380,10 +365,12 @@ public class Main
     
     //////problematic
     private void updateState(){
+        boolean kingConversion = false;
         int newVal=OCCUPY.mapString(currentLink);/////change the value of the piece that was moved
         myBoard[iSource][jSource]=0;
-        if(iDest==0){///player king conversion
+        if(iDest==0 && myBoard[iDest][jDest]!=4){///player king conversion, therefore, no extra moves possible
             myBoard[iDest][jDest]=4;
+            kingConversion=true;
         } else{//piece stays the same
             myBoard[iDest][jDest]=newVal;
         }
@@ -392,40 +379,47 @@ public class Main
         //printmyBoard();
             
         gui.componentPane.boardPane.visualise();
+        
        ///////////////////////////check if player  can make more moves
-       boolean moreMoves= additionalMoves(); 
-        /////////////now the ai can make the next move
-       if(!moreMoves) 
-            newPly();
+       
+       boolean moreMoves= additionalMoves();
+           /////////////now the ai can make the next move
+       if(!moreMoves||kingConversion) 
+           newPly();
+        
+       
         
         
     }
     private boolean additionalMoves(){
-        boolean forced = false;
         /////////////////////////check if previous move was capturing!!!!!!!!!!!!!
+        System.out.println("Searching for new moves"); 
+        if(!forced){
+            System.out.println("Forced is false in additionalmove");
+            return false;
+        }  
+        boolean goAgain = false;//indicates another move    
         validatingPositions =new HashMap<ArrayList<Integer>, ArrayList<Position>>(); 
-        for (int i = 0; i < 8; ++i) {
-            for (int j = 0; j < 8; ++j) {
+        
                 // current board state to gui
                 
-                ArrayList<Position> forcedPositions= forcedMove(new Position(i,j));//sees if there are forced moves
-        
-        
-                if(forcedPositions.size()>0){//updating gui with listeners
-                   gui.componentPane.boardPane.update(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
-                   //from now on, only states that lead to kicking out an enemy will be updated with the action listeners in gui
-                   for(Position pos: forcedPositions){
-                       gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
-                       //System.out.println("FPOS: can drop to " + pos.i + " " + pos.j);
-                    }
-                    //adding the forced positions and the candidate fields to the hashmap, this is used by the validator in the GUI to terminate illegal moves
-                   
-                   validatingPositions.put(toList(i,j), copyPositions(forcedPositions));
-                   forced=true;
-                } 
+        ArrayList<Position> forcedPositions= forcedMove(new Position(iDest,jDest));//sees if there are forced moves
+
+
+        if(forcedPositions.size()>0){//updating gui with listeners
+           gui.componentPane.boardPane.update(toList(iDest,jDest), OCCUPY.mapStatus(myBoard[iDest][jDest]));
+           //from now on, only states that lead to kicking out an enemy will be updated with the action listeners in gui
+           for(Position pos: forcedPositions){
+               gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
+               //System.out.println("FPOS: can drop to " + pos.i + " " + pos.j);
             }
-        }
-        if(forced){
+            //adding the forced positions and the candidate fields to the hashmap, this is used by the validator in the GUI to terminate illegal moves
+           
+           validatingPositions.put(toList(iDest,jDest), copyPositions(forcedPositions));
+           goAgain=true;
+        } 
+            
+        if(goAgain){
             gui.componentPane.boardPane.addValidationMap(validatingPositions);
             //System.out.println("val size: " + validatingPositions.size());
             gui.componentPane.boardPane.visualise();

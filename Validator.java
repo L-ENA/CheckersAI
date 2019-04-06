@@ -122,7 +122,7 @@ public class Validator
             this.enemyI = iDropped-iDiff;
             int jDiff= (jDropped - lastClicked.get(1))/2;
             this.enemyJ = jDropped-jDiff;
-            System.out.println("Hit me at " + enemyI+enemyJ);
+            //System.out.println("Hit me at " + enemyI+enemyJ);
             return true;
         } else{
             return false;

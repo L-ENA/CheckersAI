@@ -11,16 +11,16 @@ public class Gui
      private JFrame mainFrame;
      private MyMenuBar menuBar; 
      protected AllComponents componentPane;
-     //private Board myBoard;
+     
      //private piece aPiece;
      
     /**
      * Constructor for objects of class Gui
      */
-    public Gui(Main game)
+    public Gui()
     {
         mainFrame = new JFrame("CheckersAI");//init mainframe
-        componentPane = new AllComponents(game);
+        componentPane = new AllComponents();
         mainFrame.add(componentPane);
         mainFrame.setContentPane(componentPane);//adding the com
         menuBar = new MyMenuBar(mainFrame);//init menu bar for this game

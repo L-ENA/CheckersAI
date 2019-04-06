@@ -111,6 +111,7 @@ public class Board extends JPanel
             @Override
             public boolean canImport(TransferHandler.TransferSupport info) {
                 //System.out.println("canImport (addTransfer method)");
+                //info.setShowDropLocation(true);
                 Field dropped = (Field) info.getComponent();
                 val.tryDestination(dropped.i, dropped.j);
                 //System.out.println("try import "+dropped.i+ " "+ dropped.j);

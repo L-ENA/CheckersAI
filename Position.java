@@ -36,12 +36,12 @@ class Position implements Cloneable{
     }
 }
 
-class PositionsAndScores {
+class StateAndScores {
     int score;
-    Position pos;
-    PositionsAndScores(int score, Position pos) {
+    int[][] state;
+    StateAndScores(int score, int[][] state) {
         this.score = score;
-        this.pos = pos;
+        this.state = state;
     }
     
     
