@@ -246,12 +246,16 @@ public class Ai
                     if(isFree(someState[i][jLeft])){
                         simpleMove(i, jLeft, pos, someState);
                         jLeft--;
+                    } else {
+                        jLeft=-1;
                     }
                 }
                 if(jRight<7){
                     if(isFree(someState[i][jRight])){    
                         simpleMove(i, jRight, pos, someState);
                         jRight++;
+                    }else {
+                        jRight=8;
                     }
                  }    
             }
@@ -262,12 +266,16 @@ public class Ai
                     if(isFree(someState[i][jLeft])){
                         simpleMove(i, jLeft, pos, someState);
                         jLeft--;
+                    }else {
+                        jLeft=-1;
                     }
                 }    
                 if(jRight<7){    
                     if(isFree(someState[i][jRight])){    
                         simpleMove(i, jRight, pos, someState);
                         jRight++;
+                    }else {
+                        jRight=8;
                     }
                  }    
             }
