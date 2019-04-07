@@ -224,6 +224,14 @@ public class Ai
         return stateCopy;
     }
     
+    private int[][] captureDiagonal(int i, int iAdded, int j, int jAdded,Position pos, int[][] someState){
+        int[][] stateCopy = cloneState(someState);
+        stateCopy[i+ iAdded][j+ jAdded]=3;//our stone moved there
+        stateCopy[pos.i][pos.j]=5;//the original position is vacated
+        stateCopy[i][j]=0;//an enemy was eliminated
+        return stateCopy;//add this prospective state
+    }
+    
     private void generalMove(Position pos, int[][] someState){
         candidatesG = new ArrayList<int[][]>();
         if(someState[pos.i][pos.j]==2){//a normal black stone
@@ -327,12 +335,7 @@ public class Ai
                             } 
                             else if(isEnemy(someState[i1][jLeft])){//there is an enemy piece
                                 if(isFree(someState[i1-1][jLeft-1])){//there is an empty place behind it
-                                    int[][] stateCopy = cloneState(someState);
-                                    stateCopy = cloneState(someState);
-                                    stateCopy[i1-1][jLeft-1]=3;//our stone moved there
-                                    stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                                    stateCopy[i1][jLeft]=0;//an enemy was eliminated
-                                    forcedPositions.add(stateCopy);//add this prospective state
+                                    captureDiagonal(i1, -1, jLeft, -1,pos, someState);
                                     jLeft = -1;//the diagonal move ends here
                                 } else{
                                     jLeft = -1;//cant jump 2 at once in any move, so this diagonal will not hold more moves
@@ -346,12 +349,7 @@ public class Ai
                             } 
                             else if(isEnemy(someState[i1][jRight])){//there is an enemy piece
                                 if(isFree(someState[i1-1][jRight+1])){//there is an empty place behind it
-                                    int[][] stateCopy = cloneState(someState);
-                                    stateCopy = cloneState(someState);
-                                    stateCopy[i1-1][jRight+1]=3;//our stone moved there
-                                    stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                                    stateCopy[i1][jRight]=0;//an enemy was eliminated
-                                    forcedPositions.add(stateCopy);//add this prospective state
+                                    captureDiagonal(i1, -1, jRight, 1,pos, someState);
                                     jRight = 8;
                                 } else{
                                     jRight = 8;//cant jump 2 at once in any move, so this diagonal will not hold more moves
@@ -371,14 +369,7 @@ public class Ai
                             } 
                             else if(isEnemy(someState[i2][jLeft])){//there is an enemy piece
                                 if(isFree(someState[i2+1][jLeft-1])){//there is an empty place behind it
-                                    int[][] stateCopy = cloneState(someState);
-                                    stateCopy = cloneState(someState);
-                                    stateCopy[i2+1][jLeft-1]=3;//our stone moved there
-                                    stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                                    stateCopy[i2][jLeft]=0;//an enemy was eliminated
-                                    //stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
-                                    forcedPositions.add(stateCopy);//add this prospective state
-                                    //System.out.println("king down left " + i2 + " " + jLeft);
+                                    captureDiagonal(i2, 1, jLeft, -1,pos, someState);
                                     jLeft = -1;
                                 } else{
                                     jLeft = -1;//cant jump 2 at once in any move, so this diagonal will not hold more moves
@@ -392,14 +383,7 @@ public class Ai
                             } 
                             else if(isEnemy(someState[i2][jRight])){//there is an enemy piece
                                 if(isFree(someState[i2+1][jRight+1])){//there is an empty place behind it
-                                    int[][] stateCopy = cloneState(someState);
-                                    stateCopy = cloneState(someState);
-                                    stateCopy[i2+1][jRight+1]=3;//our stone moved there
-                                    stateCopy[pos.i][pos.j]=5;//the original position is vacated
-                                    stateCopy[i2][jRight]=0;//an enemy was eliminated
-                                    //stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
-                                    forcedPositions.add(stateCopy);//add this prospective state
-                                    //System.out.println("king down right  " + i2 + " " + jRight);
+                                    captureDiagonal(i2, 1, jRight, 1,pos, someState);
                                     jRight = 8;
                                 } else{
                                     jRight = 8;//cant jump 2 at once in any move, so this diagonal will not hold more moves
