@@ -59,11 +59,16 @@ public class Ai
         
     }
     
-    private int[][] checkKingConversion(int [][] st, int iNew, int jNew, Position pos){//if the 7th row includes a normal black piece
+    private int[][] checkKingConversion(int [][] st, int iNew, int jNew){//if the 7th row includes a normal black piece
         
         if(isAI){
+            //System.out.println("checking for AI");
             if(iNew == 7){//king conversion
                 st[iNew][jNew]=3;
+                //System.out.println("something changed");
+            } else {
+                System.out.println(st[iNew][jNew]);
+                
             } 
                 
         } else {
@@ -226,7 +231,7 @@ public class Ai
         int[][] stateCopy = cloneState(someState);/////moving bug
         stateCopy[iNew][jNew] = stateCopy[pos.i][pos.j];
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
-        stateCopy = checkKingConversion(state, iNew, jNew, pos);
+        stateCopy = checkKingConversion(stateCopy, iNew, jNew);
         candidatesG.add(stateCopy);//add this prospective state
     }
     
@@ -235,7 +240,7 @@ public class Ai
         stateCopy[pos.i+iNew][pos.j+jNew]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
         stateCopy[pos.i+(iNew/2)][pos.j+(jNew/2)]=0;//an enemy was eliminated in the middle
-        stateCopy = checkKingConversion(stateCopy, iNew, jNew, pos);//see if this move led to a king
+        stateCopy = checkKingConversion(stateCopy, iNew, jNew);//see if this move led to a king
         return stateCopy;
     }
     
