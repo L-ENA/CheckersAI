@@ -33,35 +33,36 @@ public class Main
         gui = new Gui();
         guiBoard =  new Board(this);
         gui.componentPane.addBoardPane(guiBoard);
-        myBoard = new int[][]{
-        {0,2,0,2,0,2,0,2},////multicatch
-        {2,0,2,0,2,0,2,0},
-        {0,2,0,2,0,2,0,2},
-        {0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0},
-        {1,0,1,0,1,0,1,0},
-        {0,1,0,1,0,1,0,1},
-        {1,0,1,0,1,0,1,0},
-        
-        };//creating internal state
         // myBoard = new int[][]{
-        // {0,0,0,0,0,0,0,0},////multicatch
-        // {0,0,0,0,0,0,1,0},
-        // {0,0,0,1,0,0,0,0},
-        // {0,0,3,0,0,0,1,0},
+        // {0,2,0,2,0,2,0,2},////multicatch
+        // {2,0,2,0,2,0,2,0},
+        // {0,2,0,2,0,2,0,2},
         // {0,0,0,0,0,0,0,0},
         // {0,0,0,0,0,0,0,0},
+        // {1,0,1,0,1,0,1,0},
         // {0,1,0,1,0,1,0,1},
         // {1,0,1,0,1,0,1,0},
         
-        // };
+        // };//creating internal state
+        
+        myBoard = new int[][]{
+        {0,0,0,0,0,0,0,0},////multicatch
+        {0,0,0,0,0,0,0,0},
+        {0,2,0,0,0,0,0,0},
+        {0,0,0,0,2,0,0,0},
+        {0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0},
+        {0,0,0,4,0,0,0,0},
+        {0,0,0,0,0,0,0,0},
+        
+        };
         
         forced =false;
         visualiseState();
         updateAll();//using this state to update the gui
         //gd.addObserver(this);
         
-        ai=new Ai(2, 3);
+        ai=new Ai(3, 3);
     }
     
     private void newPly() {
@@ -78,7 +79,7 @@ public class Main
             
             visualiseState();
             System.out.println("AI move ");
-            printmyBoard();
+            //printmyBoard();
             
             gui.componentPane.boardPane.visualise();
             
@@ -151,7 +152,7 @@ public class Main
                 } 
             }
         }
-        System.out.println(forced);
+        //System.out.println(forced);
         
         if(forced == false){
            
@@ -404,7 +405,7 @@ public class Main
     }
     private boolean additionalMoves(){
         /////////////////////////check if previous move was capturing!!!!!!!!!!!!!
-        System.out.println("Searching for new moves"); 
+        //System.out.println("Searching for new moves"); 
         if(!forced){
             System.out.println("Forced is false in additionalmove");
             return false;

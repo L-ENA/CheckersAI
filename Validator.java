@@ -115,7 +115,7 @@ public class Validator
                 this.enemyJ = jDropped +1;
                 
             }
-            System.out.println("enemy at " + this.enemyI + " " + this.enemyJ);
+            //System.out.println("enemy at " + this.enemyI + " " + this.enemyJ);
             return true;
         } else if (Math.abs(iDiff)>1){///////////////the checkers has moved 2 places, so there was a normal hit and we need to determine the coordinates of the hit piece
             iDiff = iDiff/2;

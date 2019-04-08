@@ -145,7 +145,7 @@ public class Board extends JPanel
                Field f = (Field)e.getSource();
                
                TransferHandler handler = f.getTransferHandler();
-               System.out.println("Click!");
+               //System.out.println("Click!");
                
                //if(game.canMove(this.pos)){
                handler.exportAsDrag(f, e, TransferHandler.MOVE);
@@ -153,7 +153,7 @@ public class Board extends JPanel
                
                val.setClicked(f.i, f.j);
                
-               System.out.println("val setclicked finished");
+               //System.out.println("val setclicked finished");
            }
         
         };

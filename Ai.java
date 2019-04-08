@@ -18,8 +18,9 @@ public class Ai
     ArrayList<int[][]> candidatesG;//all candidates for a simple diagonal move
     int heuristic;
     Random r;
-    
-    private boolean isAI;
+    int[][] lastState;
+    private int maxSE;
+    private int player;
     /**
      * Constructor for objects of class Ai
      */
@@ -50,8 +51,7 @@ public class Ai
             
             return bestMove();
           case 3:
-            System.out.println("Today is Sunday");
-            return randomMove();
+            return depth2();
           default:
             System.out.println("No level selected");
             return randomMove();
@@ -59,30 +59,10 @@ public class Ai
         
     }
     
-    private int[][] checkKingConversion(int [][] st, int iNew, int jNew){//if the 7th row includes a normal black piece
-        
-        if(isAI){
-            //System.out.println("checking for AI");
-            if(iNew == 7){//king conversion
-                st[iNew][jNew]=3;
-                //System.out.println("something changed");
-            } else {
-                System.out.println(st[iNew][jNew]);
-                
-            } 
-                
-        } else {
-            if(iNew == 0){//king conversion
-                st[iNew][jNew]=4;
-            } 
-        }
-        
-        
-        return st;
-    }
+    
     
     private int[][] randomMove(){
-        isAI=true;
+        player=1;
         statesAvailable = getAvailableStates(state);
         
         int index = r.nextInt(statesAvailable.size());
@@ -90,10 +70,138 @@ public class Ai
     }
     
     private int[][] bestMove(){/////returns the best possible state, or, a random selection of equally good best states if there is more than 1
+        player=1;
         startEvaluation();//determine successors
         return getBestSuccessor();
     }
     
+    private int[][] depth2(){
+        maxSE=100;
+        player=1;
+        minimaxEvaluation();//determine successors
+        int[][] best = getBestSuccessor();
+        
+        // player = 2;
+        // ArrayList<int[][]> humanMoves = new ArrayList<int[][]>();
+        // for(int i =0;i<statesAvailable.size(); i++){
+            // System.out.println("Successor "+i);
+            // humanMoves = getAvailableStates(statesAvailable.get(i));
+            // for(int[][] move: humanMoves){
+                // System.out.println();
+                // printState(move);
+            // }
+        // }
+        
+        return best;
+    }
+    
+    private void minimaxEvaluation(){
+        deCount = 0;
+        seCount = 0;
+        pCount = 0;
+        successorEvaluations = new ArrayList<>();
+        
+        //int[][]ret = minimax(0, player, int alpha, int beta);
+        
+    }
+    public int minimax(int depth, int player, int alpha, int beta) {
+        this.player = player;
+        int bestScore;
+        if(player == 1) //ai is maximising player
+            bestScore = -100;
+        else 
+            bestScore = 100;
+        List<int[][]> positionsAvailable = getAvailableStates(state);
+        if(seCount <= maxSE) {
+            seCount++;    
+            return Evaluator.evaluate(lastState, heuristic);//not sure which state that is atm
+                
+            
+            
+        } else 
+            return 0;
+            
+        for (int i = 0; i < positionsAvailable.size(); i++) {
+            // determine all board positions that aren't occupied
+            lastState = positionsAvailable.get(i);  
+            deCount++; // count dynamic evaluations
+            if (player == 1) { //X's turn: get the highest result returned by minimax
+                // place a piece at the first available position
+                int[][] stateToEvaluate=lastState; 
+                // get the minimax evaluation result for making the previous move
+                int currentScore = minimax(depth + 1, 2, alpha, beta); // Increase 
+                if(currentScore > bestScore) 
+                    bestScore = currentScore;
+                alpha = Math.max(currentScore, alpha); 
+                // store a mapping of complete evaluations (at depth 0) and their scores
+                if (depth == 0) 
+                    successorEvaluations.add(new StateAndScores(currentScore, lastState));
+            } 
+            else if (player == 2) {//O's turn: get the lowest result returned by minimax
+                //bestScoreMin = Integer.MAX_VALUE;
+                int[][] stateToEvaluate=lastState;  
+                int currentScore = minimax(depth + 1, 1, alpha, beta);
+                if(currentScore < bestScore) 
+                    bestScore = currentScore;
+                beta = Math.min(currentScore, beta);
+                
+            }
+            //board[pos.x][pos.y] = 0; //Reset this pos
+            
+            // pruning
+            if(alpha >= beta) {
+                pCount++;
+                
+                System.out.println();
+                System.out.println("There is no point in going any further (Pruning at level "+depth+" because "+alpha+">="+beta+").");
+                
+              break;
+            }
+        }
+        return bestScore;        
+    }
+    private boolean aiHasWon(int[][]state) {//looks if the player has any pieces left on the board
+        // ai is black here
+        int countPieces=0;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                // is the current position available?
+                if (state[i][j] == 1 || state[i][j] == 4) {
+                    countPieces++;
+                }
+            }
+        }
+        if(countPieces>0){
+            return false;
+        }
+        return true;
+    }
+    private boolean playerHasWon(int[][]state) {//looks if the ai has any pieces left on the board
+        // ai is black here
+        int countPieces=0;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                // is the current position available?
+                if (state[i][j] == 2 || state[i][j] == 3) {
+                    countPieces++;
+                }
+            }
+        }
+        if(countPieces>0){
+            return false;
+        }
+        return true;
+    }
+    private void printState(int[][] st){
+        for (int[] x : st)
+        {
+            for (int y : x)
+            {
+                System.out.print(y + " ");
+            }
+            System.out.println();
+        }
+    }
     private int[][] getBestSuccessor(){
         int max = Integer.MIN_VALUE;
         int [][] ret = state;//get best successor
@@ -121,8 +229,9 @@ public class Ai
         seCount = 0;
         pCount = 0;
         successorEvaluations = new ArrayList<>();
-        isAI= true;
+        
         statesAvailable = getAvailableStates(state);
+        
         scoreForState();
         
     }
@@ -201,7 +310,11 @@ public class Ai
         return false;    
     }
     
-    
+    private boolean isEnemyW(int test){
+        if(test==2||test==3)
+            return true;
+        return false;    
+    }
     
     
     public static int[][] cloneState(int[][] source) {
@@ -227,8 +340,29 @@ public class Ai
         }
     } 
     
+    private int[][] checkKingConversion(int [][] st, int iNew, int jNew){//if the 7th row includes a normal black piece
+        
+        if(player==1){
+            //System.out.println("checking for AI");
+            if(iNew == 7){//king conversion
+                st[iNew][jNew]=3;
+                //System.out.println("something changed");
+            } else {
+                System.out.println(st[iNew][jNew]);
+                
+            } 
+                
+        } else {
+            if(iNew == 0){//king conversion
+                st[iNew][jNew]=4;
+            } 
+        }
+        
+        
+        return st;
+    }
     private void simpleMove(int iNew,int jNew,Position pos, int[][] someState){//moving and updating the candidate state
-        int[][] stateCopy = cloneState(someState);/////moving bug
+        int[][] stateCopy = cloneState(someState);///
         stateCopy[iNew][jNew] = stateCopy[pos.i][pos.j];
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
         stateCopy = checkKingConversion(stateCopy, iNew, jNew);
@@ -254,22 +388,79 @@ public class Ai
     
     private void generalMove(Position pos, int[][] someState){
         candidatesG = new ArrayList<int[][]>();
-        if(someState[pos.i][pos.j]==2){//a normal black stone
+        if(player==1){
+                if(someState[pos.i][pos.j]==2){//a normal black stone
+                //System.out.println("testing a black piece");
+                if(pos.i<7 && pos.j>0){
+                    if (isFree(someState[pos.i+1][pos.j-1])){ //move left
+                        simpleMove(pos.i+1,pos.j-1,pos, someState);
+                        }
+                    }    
+                if(pos.i<7 && pos.j<7) {   
+                    if (isFree(someState[pos.i+1][pos.j+1])){ //move right
+                        simpleMove(pos.i+1,pos.j+1,pos, someState);
+                        }
+                    } 
+             } else if (someState[pos.i][pos.j]==3){///////////////////////////////////////////////////////////////it is a King
+                int jLeft = pos.j-1; 
+                int jRight = pos.j+1;
+                for(int i = pos.i-1; i>=0;i--){//up diagonal
+                    if(jLeft>0){
+                        if(isFree(someState[i][jLeft])){
+                            simpleMove(i, jLeft, pos, someState);
+                            jLeft--;
+                        } else {
+                            jLeft=-1;
+                        }
+                    }
+                    if(jRight<7){
+                        if(isFree(someState[i][jRight])){    
+                            simpleMove(i, jRight, pos, someState);
+                            jRight++;
+                        }else {
+                            jRight=8;
+                        }
+                     }    
+                }
+                jLeft = pos.j-1; 
+                jRight = pos.j+1;
+                for(int i = pos.i+1; i<=7;i++){//down diagonal
+                    if(jLeft>0){
+                        if(isFree(someState[i][jLeft])){
+                            simpleMove(i, jLeft, pos, someState);
+                            jLeft--;
+                        }else {
+                            jLeft=-1;
+                        }
+                    }    
+                    if(jRight<7){    
+                        if(isFree(someState[i][jRight])){    
+                            simpleMove(i, jRight, pos, someState);
+                            jRight++;
+                        }else {
+                            jRight=8;
+                        }
+                     }    
+                }
+            } 
+            
+        } else {//////////////////simulating player
+            if(someState[pos.i][pos.j]==1){//a normal white stone
             //System.out.println("testing a black piece");
-            if(pos.i<7 && pos.j>0){
-                if (isFree(someState[pos.i+1][pos.j-1])){ //move left
-                    simpleMove(pos.i+1,pos.j-1,pos, someState);
+            if(pos.i>0 && pos.j>0){
+                if (isFree(someState[pos.i-1][pos.j-1])){ //move left
+                    simpleMove(pos.i-1,pos.j-1,pos, someState);
                     }
                 }    
-            if(pos.i<7 && pos.j<7) {   
-                if (isFree(someState[pos.i+1][pos.j+1])){ //move right
-                    simpleMove(pos.i+1,pos.j+1,pos, someState);
+            if(pos.i>0 && pos.j<7) {   
+                if (isFree(someState[pos.i-1][pos.j+1])){ //move right
+                    simpleMove(pos.i-1,pos.j+1,pos, someState);
                     }
                 } 
-         } else if (someState[pos.i][pos.j]==3){///////////////////////////////////////////////////////////////it is a King
+         } else if (someState[pos.i][pos.j]==4){///////////////////////////////////////////////////////////////it is a King
             int jLeft = pos.j-1; 
             int jRight = pos.j+1;
-            for(int i = pos.i-1; i>0;i--){//up diagonal
+            for(int i = pos.i-1; i>=0;i--){//up diagonal
                 if(jLeft>0){
                     if(isFree(someState[i][jLeft])){
                         simpleMove(i, jLeft, pos, someState);
@@ -289,7 +480,7 @@ public class Ai
             }
             jLeft = pos.j-1; 
             jRight = pos.j+1;
-            for(int i = pos.i+1; i<7;i++){//down diagonal
+            for(int i = pos.i+1; i<=7;i++){//down diagonal
                 if(jLeft>0){
                     if(isFree(someState[i][jLeft])){
                         simpleMove(i, jLeft, pos, someState);
@@ -308,6 +499,8 @@ public class Ai
                  }    
             }
         }
+        }
+        
         
     }
     
@@ -319,41 +512,137 @@ public class Ai
             for (int j = 0; j < 8; ++j) {
                 //looking for catching moves for the following position
                 Position pos = new Position(i,j);
+                if(player==1){//////simulating the AI to get its moves
+                    if (someState[pos.i][pos.j]==2){//it is a normal black stone
+                        
+                        if(pos.i<7 && pos.j>0){//looking at front left. smaller than 0 because board ends at 7, so if I am at 7 there is no more piece to go
+                            if (isEnemy(someState[pos.i+1][pos.j-1])){ //if there is an enemy ahead to the left
+                                try{
+                                if(isFree(someState[pos.i+2][pos.j-2])){//left back of enemy is empty
+                                    forcedPositions.add(captureMove(2,-2,pos, someState));
+                                }
+                            }catch (Exception e){}
+                            }
+                        }
+                        
+                        if(pos.i<7 && pos.j<7) {   
+                            if (isEnemy(someState[pos.i+1][pos.j+1])){ //enemy to front right
+                                
+                                try{
+                                if(isFree(someState[pos.i+2][pos.j+2])){//right back
+                                    forcedPositions.add(captureMove(2,2,pos, someState));//add this prospective state
+                                }
+                                }catch (Exception e){}
+                            }
+                        }
                 
-                if (someState[pos.i][pos.j]==2){//it is a normal black stone
+                
+                    } else if(someState[pos.i][pos.j]==3){///////////////////////////////////if the checker is a King, all diagonals need to be checked
+                        int jLeft = pos.j -1;
+                        int jRight = pos.j +1;
                     
-                    if(pos.i<7 && pos.j>0){//looking at front left. smaller than 0 because board ends at 7, so if I am at 7 there is no more piece to go
-                        if (isEnemy(someState[pos.i+1][pos.j-1])){ //if there is an enemy ahead to the left
+                        for(int i1 = pos.i-1; i1>0;i1--){//up diagonal
+                            if(jLeft >0 ){
+                                if (someState[i1][jLeft]==2 || someState[i1][jLeft]==3){//an own piece is in the way
+                                    jLeft = -1;
+                                } 
+                                else if(isEnemy(someState[i1][jLeft])){//there is an enemy piece
+                                    if(isFree(someState[i1-1][jLeft-1])){//there is an empty place behind it
+                                        forcedPositions.add(captureDiagonal(i1, -1, jLeft, -1,pos, someState));
+                                        jLeft = -1;//the diagonal move ends here
+                                    } else{
+                                        jLeft = -1;//cant jump 2 at once in any move, so this diagonal will not hold more moves
+                                    }
+                                }
+                                jLeft --;
+                            }
+                            if(jRight<7){
+                                if(someState[i1][jRight]==2 || someState[i1][jRight]==3){
+                                    jRight = 8;
+                                } 
+                                else if(isEnemy(someState[i1][jRight])){//there is an enemy piece
+                                    if(isFree(someState[i1-1][jRight+1])){//there is an empty place behind it
+                                        forcedPositions.add(captureDiagonal(i1, -1, jRight, 1,pos, someState));
+                                        jRight = 8;
+                                    } else{
+                                        jRight = 8;//cant jump 2 at once in any move, so this diagonal will not hold more moves
+                                    }
+                                }
+                                jRight ++;
+                            }
+                        }
+                
+                        ///////////////////////down diagonal
+                        jLeft = pos.j -1;
+                        jRight = pos.j +1;
+                        for(int i2 = pos.i+1; i2<7;i2++){//down diagonal
+                            if(jLeft >0){
+                                if (someState[i2][jLeft]==2 || someState[i2][jLeft]==3){//an own piece is in the way
+                                    jLeft = -1;
+                                } 
+                                else if(isEnemy(someState[i2][jLeft])){//there is an enemy piece
+                                    if(isFree(someState[i2+1][jLeft-1])){//there is an empty place behind it
+                                        forcedPositions.add(captureDiagonal(i2, 1, jLeft, -1,pos, someState));
+                                        jLeft = -1;
+                                    } else{
+                                        jLeft = -1;//cant jump 2 at once in any move, so this diagonal will not hold more moves
+                                    }
+                                }
+                                jLeft --;
+                            }
+                            if(jRight<7){
+                                if(someState[i2][jRight]==2 || someState[i2][jRight]==3){
+                                    jRight = 8;
+                                } 
+                                else if(isEnemy(someState[i2][jRight])){//there is an enemy piece
+                                    if(isFree(someState[i2+1][jRight+1])){//there is an empty place behind it
+                                        forcedPositions.add(captureDiagonal(i2, 1, jRight, 1,pos, someState));
+                                        jRight = 8;
+                                    } else{
+                                        jRight = 8;//cant jump 2 at once in any move, so this diagonal will not hold more moves
+                                    }
+                                   }
+                                 jRight ++;
+                                }
+                        }
+                
+                    }
+                
+                } else {///simulating player to get their sucessor states
+                    if (someState[pos.i][pos.j]==1){//it is a normal white stone
+                    
+                    if(pos.i>0 && pos.j>0){//looking at front left. smaller than 0 because board ends at 7, so if I am at 7 there is no more piece to go
+                        if (isEnemyW(someState[pos.i-1][pos.j-1])){ //if there is an enemy ahead to the left
                             try{
-                            if(isFree(someState[pos.i+2][pos.j-2])){//left back of enemy is empty
-                                forcedPositions.add(captureMove(2,-2,pos, someState));
+                            if(isFree(someState[pos.i-2][pos.j-2])){//left back of enemy is empty
+                                forcedPositions.add(captureMove(-2,-2,pos, someState));
                             }
                         }catch (Exception e){}
                         }
                     }
                     
-                    if(pos.i<7 && pos.j<7) {   
-                        if (isEnemy(someState[pos.i+1][pos.j+1])){ //enemy to front right
+                    if(pos.i>0 && pos.j<7) {   
+                        if (isEnemyW(someState[pos.i-1][pos.j+1])){ //enemy to front right
                             
                             try{
-                            if(isFree(someState[pos.i+2][pos.j+2])){//right back
-                                forcedPositions.add(captureMove(2,2,pos, someState));//add this prospective state
+                            if(isFree(someState[pos.i-2][pos.j+2])){//right back
+                                forcedPositions.add(captureMove(-2,2,pos, someState));//add this prospective state
                             }
                             }catch (Exception e){}
                         }
                     }
             
             
-                } else if(someState[pos.i][pos.j]==3){///////////////////////////////////if the checker is a King, all diagonals need to be checked
+                } else if(someState[pos.i][pos.j]==4){///////////////////////////////////if the checker is a King, all diagonals need to be checked
                     int jLeft = pos.j -1;
                     int jRight = pos.j +1;
                 
                     for(int i1 = pos.i-1; i1>0;i1--){//up diagonal
                         if(jLeft >0 ){
-                            if (someState[i1][jLeft]==2 || someState[i1][jLeft]==3){//an own piece is in the way
+                            if (someState[i1][jLeft]==1 || someState[i1][jLeft]==4){//an own piece is in the way
                                 jLeft = -1;
                             } 
-                            else if(isEnemy(someState[i1][jLeft])){//there is an enemy piece
+                            else if(isEnemyW(someState[i1][jLeft])){//there is an enemy piece
                                 if(isFree(someState[i1-1][jLeft-1])){//there is an empty place behind it
                                     forcedPositions.add(captureDiagonal(i1, -1, jLeft, -1,pos, someState));
                                     jLeft = -1;//the diagonal move ends here
@@ -364,10 +653,10 @@ public class Ai
                             jLeft --;
                         }
                         if(jRight<7){
-                            if(someState[i1][jRight]==2 || someState[i1][jRight]==3){
+                            if(someState[i1][jRight]==1 || someState[i1][jRight]==4){
                                 jRight = 8;
                             } 
-                            else if(isEnemy(someState[i1][jRight])){//there is an enemy piece
+                            else if(isEnemyW(someState[i1][jRight])){//there is an enemy piece
                                 if(isFree(someState[i1-1][jRight+1])){//there is an empty place behind it
                                     forcedPositions.add(captureDiagonal(i1, -1, jRight, 1,pos, someState));
                                     jRight = 8;
@@ -384,10 +673,10 @@ public class Ai
                     jRight = pos.j +1;
                     for(int i2 = pos.i+1; i2<7;i2++){//down diagonal
                         if(jLeft >0){
-                            if (someState[i2][jLeft]==2 || someState[i2][jLeft]==3){//an own piece is in the way
+                            if (someState[i2][jLeft]==1 || someState[i2][jLeft]==4){//an own piece is in the way
                                 jLeft = -1;
                             } 
-                            else if(isEnemy(someState[i2][jLeft])){//there is an enemy piece
+                            else if(isEnemyW(someState[i2][jLeft])){//there is an enemy piece
                                 if(isFree(someState[i2+1][jLeft-1])){//there is an empty place behind it
                                     forcedPositions.add(captureDiagonal(i2, 1, jLeft, -1,pos, someState));
                                     jLeft = -1;
@@ -398,7 +687,7 @@ public class Ai
                             jLeft --;
                         }
                         if(jRight<7){
-                            if(someState[i2][jRight]==2 || someState[i2][jRight]==3){
+                            if(someState[i2][jRight]==1 || someState[i2][jRight]==4){
                                 jRight = 8;
                             } 
                             else if(isEnemy(someState[i2][jRight])){//there is an enemy piece
@@ -414,6 +703,8 @@ public class Ai
                     }
             
                 }
+                }
+                
                 
             }
         }
