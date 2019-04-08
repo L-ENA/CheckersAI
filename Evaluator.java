@@ -121,7 +121,7 @@ public class Evaluator
             case 3: 
                     result= piecesUltimate(candidate);
             }
-        System.out.println("Heuristic eval is: " + result);
+        //System.out.println("Heuristic eval is: " + result);
         return result;    
     }
 }

@@ -19,6 +19,7 @@ public class Ai
     int heuristic;
     Random r;
     
+    private boolean isAI;
     /**
      * Constructor for objects of class Ai
      */
@@ -58,20 +59,25 @@ public class Ai
         
     }
     
-    private int[][] checkKingConversion(int [][] st){//if the 7th row includes a normal black piece
+    private int[][] checkKingConversion(int [][] st, int iNew, int jNew, Position pos){//if the 7th row includes a normal black piece
         
-        for(int i = 0;i<st[7].length; i++){
-            if(st[7][i]==2){
-                st[7][i]=3;
-                System.out.println("Converted to king");
-            }
-            //System.out.println(i);
+        if(isAI){
+            if(iNew == 7){//king conversion
+                st[iNew][jNew]=3;
+            } 
+                
+        } else {
+            if(iNew == 0){//king conversion
+                st[iNew][jNew]=4;
+            } 
         }
+        
         
         return st;
     }
     
     private int[][] randomMove(){
+        isAI=true;
         statesAvailable = getAvailableStates(state);
         
         int index = r.nextInt(statesAvailable.size());
@@ -80,29 +86,37 @@ public class Ai
     
     private int[][] bestMove(){/////returns the best possible state, or, a random selection of equally good best states if there is more than 1
         startEvaluation();//determine successors
+        return getBestSuccessor();
+    }
+    
+    private int[][] getBestSuccessor(){
         int max = Integer.MIN_VALUE;
         int [][] ret = state;//get best successor
+        
         ArrayList<int[][]> bestStates = new ArrayList<int[][]>();
-        for(int i=0; i<successorEvaluations.size(); i++){//determine best score
+        for(int i=0; i<successorEvaluations.size(); i++){//determine max score
             if(successorEvaluations.get(i).score > max){
                 max= successorEvaluations.get(i).score;
             }
         }
         
-        for(StateAndScores candidate : successorEvaluations){//filter out the best states
+        for(StateAndScores candidate : successorEvaluations){//filter out the states that meet the max score
             if(candidate.score==max){
                 bestStates.add(candidate.state);
             }
         }
-        int index = r.nextInt(bestStates.size());//choose best state if there is more than 1
+        
+        int index = r.nextInt(bestStates.size());//choose random best state if there is more than 1
         return bestStates.get(index);
     }
+    
     
     private void startEvaluation(){
         deCount = 0;
         seCount = 0;
         pCount = 0;
         successorEvaluations = new ArrayList<>();
+        isAI= true;
         statesAvailable = getAvailableStates(state);
         scoreForState();
         
@@ -116,6 +130,7 @@ public class Ai
     }
     
     private ArrayList<int[][]> getAvailableStates(int[][] someState){
+        
         this.forced=false;
         ArrayList<int[][]> freePositions = new ArrayList<>();
         //int[][] pastPosition = new int[8][8];
@@ -208,10 +223,10 @@ public class Ai
     } 
     
     private void simpleMove(int iNew,int jNew,Position pos, int[][] someState){//moving and updating the candidate state
-        int[][] stateCopy = cloneState(someState);
-        stateCopy[iNew][jNew]=stateCopy[pos.i][pos.j];//our stone moved there
+        int[][] stateCopy = cloneState(someState);/////moving bug
+        stateCopy[iNew][jNew] = stateCopy[pos.i][pos.j];
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
-        stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
+        stateCopy = checkKingConversion(state, iNew, jNew, pos);
         candidatesG.add(stateCopy);//add this prospective state
     }
     
@@ -220,13 +235,13 @@ public class Ai
         stateCopy[pos.i+iNew][pos.j+jNew]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
         stateCopy[pos.i+(iNew/2)][pos.j+(jNew/2)]=0;//an enemy was eliminated in the middle
-        stateCopy = checkKingConversion(stateCopy);//see if this move led to a king
+        stateCopy = checkKingConversion(stateCopy, iNew, jNew, pos);//see if this move led to a king
         return stateCopy;
     }
     
     private int[][] captureDiagonal(int i, int iAdded, int j, int jAdded,Position pos, int[][] someState){
         int[][] stateCopy = cloneState(someState);
-        stateCopy[i+ iAdded][j+ jAdded]=3;//our stone moved there
+        stateCopy[i+ iAdded][j+ jAdded]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
         stateCopy[i][j]=0;//an enemy was eliminated
         return stateCopy;//add this prospective state
@@ -335,7 +350,7 @@ public class Ai
                             } 
                             else if(isEnemy(someState[i1][jLeft])){//there is an enemy piece
                                 if(isFree(someState[i1-1][jLeft-1])){//there is an empty place behind it
-                                    captureDiagonal(i1, -1, jLeft, -1,pos, someState);
+                                    forcedPositions.add(captureDiagonal(i1, -1, jLeft, -1,pos, someState));
                                     jLeft = -1;//the diagonal move ends here
                                 } else{
                                     jLeft = -1;//cant jump 2 at once in any move, so this diagonal will not hold more moves
@@ -349,7 +364,7 @@ public class Ai
                             } 
                             else if(isEnemy(someState[i1][jRight])){//there is an enemy piece
                                 if(isFree(someState[i1-1][jRight+1])){//there is an empty place behind it
-                                    captureDiagonal(i1, -1, jRight, 1,pos, someState);
+                                    forcedPositions.add(captureDiagonal(i1, -1, jRight, 1,pos, someState));
                                     jRight = 8;
                                 } else{
                                     jRight = 8;//cant jump 2 at once in any move, so this diagonal will not hold more moves
@@ -369,7 +384,7 @@ public class Ai
                             } 
                             else if(isEnemy(someState[i2][jLeft])){//there is an enemy piece
                                 if(isFree(someState[i2+1][jLeft-1])){//there is an empty place behind it
-                                    captureDiagonal(i2, 1, jLeft, -1,pos, someState);
+                                    forcedPositions.add(captureDiagonal(i2, 1, jLeft, -1,pos, someState));
                                     jLeft = -1;
                                 } else{
                                     jLeft = -1;//cant jump 2 at once in any move, so this diagonal will not hold more moves
@@ -383,7 +398,7 @@ public class Ai
                             } 
                             else if(isEnemy(someState[i2][jRight])){//there is an enemy piece
                                 if(isFree(someState[i2+1][jRight+1])){//there is an empty place behind it
-                                    captureDiagonal(i2, 1, jRight, 1,pos, someState);
+                                    forcedPositions.add(captureDiagonal(i2, 1, jRight, 1,pos, someState));
                                     jRight = 8;
                                 } else{
                                     jRight = 8;//cant jump 2 at once in any move, so this diagonal will not hold more moves

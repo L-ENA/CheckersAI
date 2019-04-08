@@ -33,28 +33,28 @@ public class Main
         gui = new Gui();
         guiBoard =  new Board(this);
         gui.componentPane.addBoardPane(guiBoard);
-        // myBoard = new int[][]{
-        // {0,2,0,2,0,2,0,2},////multicatch
-        // {2,0,2,0,2,0,2,0},
-        // {0,2,0,2,0,2,0,2},
-        // {0,0,0,0,0,0,0,0},
-        // {0,0,0,0,0,0,0,0},
-        // {1,0,1,0,1,0,1,0},
-        // {0,1,0,1,0,1,0,1},
-        // {1,0,1,0,1,0,1,0},
-        
-        // };//creating internal state
         myBoard = new int[][]{
-        {0,3,0,3,0,0,0,0},////multicatch
-        {1,0,2,0,3,0,1,0},
-        {0,2,0,2,0,2,0,3},
-        {0,0,3,0,0,0,0,0},
-        {0,2,0,0,0,0,0,0},
+        {0,2,0,2,0,2,0,2},////multicatch
+        {2,0,2,0,2,0,2,0},
+        {0,2,0,2,0,2,0,2},
+        {0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0},
         {1,0,1,0,1,0,1,0},
         {0,1,0,1,0,1,0,1},
         {1,0,1,0,1,0,1,0},
         
-        };
+        };//creating internal state
+        // myBoard = new int[][]{
+        // {0,0,0,0,0,0,0,0},////multicatch
+        // {0,0,0,0,0,0,1,0},
+        // {0,0,0,1,0,0,0,0},
+        // {0,0,3,0,0,0,1,0},
+        // {0,0,0,0,0,0,0,0},
+        // {0,0,0,0,0,0,0,0},
+        // {0,1,0,1,0,1,0,1},
+        // {1,0,1,0,1,0,1,0},
+        
+        // };
         
         forced =false;
         visualiseState();
@@ -163,7 +163,7 @@ public class Main
                    gui.componentPane.boardPane.update(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
                    for(Position pos: candidates){
                        gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
-                       System.out.println("Can go to " + pos.i +" " + pos.j);
+                       //System.out.println("Can go to " + pos.i +" " + pos.j);
                     }
                    //adding the forced positions and the candidate fields to the hashmap
                    validatingPositions.put(toList(i,j), copyPositions(candidates));
