@@ -7,7 +7,7 @@
  */
 public enum OCCUPY
 {
-    FREE("",0), WHITE("whiteNorm.png",1), BLACK("blackNorm.png",2), BK("blackKing.png",3), WK("whiteKing.png",4), FEET("feet.png", 5);
+    FREE("",0), WHITE("whiteNorm.png",1), BLACK("blackNorm.png",2), BK("blackKing.png",3), WK("whiteKing.png",4), FEET("feet.png", 5), KICK("kick.png", 6);
     
     private final String description;
     private final int status;
@@ -37,7 +37,9 @@ public enum OCCUPY
             case "whiteKing.png": 
                 return WK.getStatus();  
             case "feet.png": 
-                return FEET.getStatus();     
+                return FEET.getStatus();
+            case "kick.png": 
+                return KICK.getStatus(); 
             default: 
                 return 0; 
         } 
@@ -56,6 +58,8 @@ public enum OCCUPY
                 return WK.getLink();
             case 5: 
                 return FEET.getLink();
+            case 6: 
+                return KICK.getLink();    
             default: 
                 return ""; 
         } 

@@ -329,7 +329,7 @@ public class Ai
     
     
     private boolean isFree(int test){
-        if(test==0||test==5)
+        if(test==0||test==5||test==6)
             return true;
         return false;    
     }
@@ -354,20 +354,7 @@ public class Ai
         }
         return ret;
     }
-    // Recursive DFS
-    public  void dfs(Node node)
-    {
-        System.out.print(node.data + " ");
-        List<Node> neighbours=node.getNeighbours();
-        node.visited=true;
-        for (int i = 0; i < neighbours.size(); i++) {
-            Node n=neighbours.get(i);
-            if(n!=null && !n.visited)
-            {
-                dfs(n);
-            }
-        }
-    } 
+    
     
     private int[][] checkKingConversion(int [][] st, int iNew, int jNew){//if the 7th row includes a normal black piece
         
@@ -399,7 +386,7 @@ public class Ai
         int[][] stateCopy = cloneState(someState);
         stateCopy[pos.i+iNew][pos.j+jNew]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
-        stateCopy[pos.i+(iNew/2)][pos.j+(jNew/2)]=0;//an enemy was eliminated in the middle
+        stateCopy[pos.i+(iNew/2)][pos.j+(jNew/2)]=6;//an enemy was eliminated in the middle
         stateCopy = checkKingConversion(stateCopy, pos.i+iNew, pos.j+jNew);//see if this move led to a king
         return stateCopy;
     }
@@ -408,7 +395,7 @@ public class Ai
         int[][] stateCopy = cloneState(someState);
         stateCopy[i+ iAdded][j+ jAdded]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
-        stateCopy[i][j]=0;//an enemy was eliminated
+        stateCopy[i][j]=6;//an enemy was eliminated
         
         return stateCopy;//add this prospective state
     }
