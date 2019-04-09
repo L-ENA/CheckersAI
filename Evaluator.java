@@ -95,9 +95,11 @@ public class Evaluator
                         break;
                     case 3:
                         sumOwn +=5;
+                        
                         break;
                     case 4:
                         sumEnemy +=5;
+                        //System.out.println("white king");
                         break;
                 }
                 
@@ -122,6 +124,7 @@ public class Evaluator
                     result= piecesUltimate(candidate);
             }
         //System.out.println("Heuristic eval is: " + result);
+        
         return result;    
     }
 }

@@ -62,7 +62,7 @@ public class Main
         updateAll();//using this state to update the gui
         //gd.addObserver(this);
         
-        ai=new Ai(3, 3);
+        ai=new Ai(3, 1);
     }
     
     private void newPly() {

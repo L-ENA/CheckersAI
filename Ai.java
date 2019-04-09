@@ -43,6 +43,7 @@ public class Ai
         // put your code here
         this.state = myBoard;
         int[][]returnState;
+        lastState = cloneState(myBoard);
         switch (level) {
           case 1:
             return randomMove();
@@ -76,23 +77,26 @@ public class Ai
     }
     
     private int[][] depth2(){
-        maxSE=100;
+        maxSE=10;
         player=1;
+        System.out.println("Calculating");
         minimaxEvaluation();//determine successors
-        int[][] best = getBestSuccessor();
+        int max = -10000;
+        int best = -1;
+        System.out.println(successorEvaluations.size() + " options");
+        // iterate over successors and return the one with the highest eval result
+        for (int i = 0; i < successorEvaluations.size(); ++i) { 
+            if (max < successorEvaluations.get(i).score) {
+                max = successorEvaluations.get(i).score;
+                best = i;
+                
+            }
+            //System.out.println("Option "+ i + " results in "+ successorEvaluations.get(i).score);
+        }
+        System.out.println("best score is "+ successorEvaluations.get(best).score);
+        printState(successorEvaluations.get(best).state);
+        return successorEvaluations.get(best).state;
         
-        // player = 2;
-        // ArrayList<int[][]> humanMoves = new ArrayList<int[][]>();
-        // for(int i =0;i<statesAvailable.size(); i++){
-            // System.out.println("Successor "+i);
-            // humanMoves = getAvailableStates(statesAvailable.get(i));
-            // for(int[][] move: humanMoves){
-                // System.out.println();
-                // printState(move);
-            // }
-        // }
-        
-        return best;
     }
     
     private void minimaxEvaluation(){
@@ -101,33 +105,57 @@ public class Ai
         pCount = 0;
         successorEvaluations = new ArrayList<>();
         
-        //int[][]ret = minimax(0, player, int alpha, int beta);
+        minimax(0, 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
         
     }
+    
     public int minimax(int depth, int player, int alpha, int beta) {
         this.player = player;
+        //System.out.println("player is " + player);
+        //System.out.println("se count " + seCount);
+        
         int bestScore;
         if(player == 1) //ai is maximising player
             bestScore = -100;
         else 
             bestScore = 100;
-        List<int[][]> positionsAvailable = getAvailableStates(state);
-        if(seCount <= maxSE) {
+        List<int[][]> positionsAvailable = getAvailableStates(this.state);
+        
+        
+        if(aiHasWon(this.state)){
+            seCount++;
+            return 100;
+        } else if(playerHasWon(this.state)){
+            seCount++;
+            return -100;
+        } else if(positionsAvailable.isEmpty()){
+            seCount++;
+            if(player==1)
+                return -100;
+            else
+                return 100;
+        } else if(depth >6) {
             seCount++;    
-            return Evaluator.evaluate(lastState, heuristic);//not sure which state that is atm
-                
-            
-            
-        } else 
-            return 0;
+            int score = Evaluator.evaluate(this.state, heuristic);//not sure which state that is atm
+            //System.out.println(player);
+            //System.out.println("best score for below is "+score);
+            //printState(lastState);
+            return score;
+              
+        } 
+        
+        
+       
             
         for (int i = 0; i < positionsAvailable.size(); i++) {
-            // determine all board positions that aren't occupied
-            lastState = positionsAvailable.get(i);  
+            // determine all potential successor states
+            int[][] previous = cloneState(this.state);
+            int[][] pos = positionsAvailable.get(i);
+            
             deCount++; // count dynamic evaluations
             if (player == 1) { //X's turn: get the highest result returned by minimax
                 // place a piece at the first available position
-                int[][] stateToEvaluate=lastState; 
+                this.state=pos; 
                 // get the minimax evaluation result for making the previous move
                 int currentScore = minimax(depth + 1, 2, alpha, beta); // Increase 
                 if(currentScore > bestScore) 
@@ -135,25 +163,26 @@ public class Ai
                 alpha = Math.max(currentScore, alpha); 
                 // store a mapping of complete evaluations (at depth 0) and their scores
                 if (depth == 0) 
-                    successorEvaluations.add(new StateAndScores(currentScore, lastState));
+                    successorEvaluations.add(new StateAndScores(currentScore, this.state));
             } 
             else if (player == 2) {//O's turn: get the lowest result returned by minimax
                 //bestScoreMin = Integer.MAX_VALUE;
-                int[][] stateToEvaluate=lastState;  
+                //int[][] stateToEvaluate=lastState;
+                this.state=pos; 
                 int currentScore = minimax(depth + 1, 1, alpha, beta);
                 if(currentScore < bestScore) 
                     bestScore = currentScore;
                 beta = Math.min(currentScore, beta);
                 
             }
-            //board[pos.x][pos.y] = 0; //Reset this pos
+            this.state = cloneState(previous); //Reset this pos
             
             // pruning
             if(alpha >= beta) {
                 pCount++;
                 
-                System.out.println();
-                System.out.println("There is no point in going any further (Pruning at level "+depth+" because "+alpha+">="+beta+").");
+                //System.out.println();
+                //System.out.println("There is no point in going any further (Pruning at level "+depth+" because "+alpha+">="+beta+").");
                 
               break;
             }
@@ -347,9 +376,6 @@ public class Ai
             if(iNew == 7){//king conversion
                 st[iNew][jNew]=3;
                 //System.out.println("something changed");
-            } else {
-                System.out.println(st[iNew][jNew]);
-                
             } 
                 
         } else {
@@ -374,7 +400,7 @@ public class Ai
         stateCopy[pos.i+iNew][pos.j+jNew]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
         stateCopy[pos.i+(iNew/2)][pos.j+(jNew/2)]=0;//an enemy was eliminated in the middle
-        stateCopy = checkKingConversion(stateCopy, iNew, jNew);//see if this move led to a king
+        stateCopy = checkKingConversion(stateCopy, pos.i+iNew, pos.j+jNew);//see if this move led to a king
         return stateCopy;
     }
     
@@ -383,6 +409,7 @@ public class Ai
         stateCopy[i+ iAdded][j+ jAdded]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
         stateCopy[i][j]=0;//an enemy was eliminated
+        
         return stateCopy;//add this prospective state
     }
     
