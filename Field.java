@@ -5,7 +5,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import java.awt.image.*;
 import java.io.*;
-
+import java.awt.event.*;
 /**
  * Write a description of class Field here.
  *
@@ -50,6 +50,8 @@ public class Field extends JLabel
         
         
     }
+    
+    public Field(){}
     
     public Field(int[] index, String link){
         this.i=index[0];

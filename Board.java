@@ -25,6 +25,7 @@ public class Board extends JPanel
     Validator val = new Validator();//checks if drag and drops are valid moves
     LinkedHashMap<ArrayList<Integer>, Field> squares = new LinkedHashMap<ArrayList<Integer>, Field>();
     Main game;
+    int humanMoves;
     /**
      * Constructor for objects of class Board
      */
@@ -66,6 +67,7 @@ public class Board extends JPanel
         
         for(ArrayList<Integer> index :keys){
             this.add(squares.get(index));
+            
         }
         this.setSize(300,300); 
         this.revalidate();
@@ -73,6 +75,51 @@ public class Board extends JPanel
         this.setVisible(true);
     }
     
+    protected void showOptions(){
+        int[] ind = val.getIndex();
+        Field f = new Field();
+        for (Component c : this.getComponents()){
+            //System.out.println(c.toString());
+
+            if (c instanceof Field){
+                f = (Field) c;
+                
+                if(f.i==ind[0] && f.j==ind[1]){
+                    f.setIC("empty.png");
+                    
+                    break;
+                }
+                    
+                    
+            }
+            
+        }
+        
+        this.setSize(300,300); 
+        this.revalidate();
+        this.repaint();
+        this.setVisible(true);
+        
+        //f.setIC("");
+        
+    }
+    private void deleteTrails(){
+        for (Component c : this.getComponents()){
+            //System.out.println(c.toString());
+
+            if (c instanceof Field){
+                Field f = (Field) c;
+                if(f.link=="feet.png" || f.link=="kick.png")
+                    f.setIC("");
+            }
+            
+        }
+        
+        this.setSize(300,300); 
+        this.revalidate();
+        this.repaint();
+        this.setVisible(true);
+    }
     public void updateNoListeners(ArrayList<Integer> indexNew, String link){
         //System.out.println(link+ " no listeners "   +indexNew.get(0) + indexNew.get(1));
         Field f = squares.get(indexNew);
@@ -146,7 +193,7 @@ public class Board extends JPanel
                // }
                
                val.setClicked(f.i, f.j);
-               
+               deleteTrails();
                System.out.println("val setclicked finished");
            }
         
@@ -181,11 +228,18 @@ public class Board extends JPanel
                             game.doEnemyElimination(enemyPosition[0], enemyPosition[1]);
                         }
                         
-                        if(val.iDropped!=8)
+                        if(val.iDropped!=8){
+                            System.out.println("update");
+                            
+                            
                             game.setSource(((Field) source).i, ((Field) source).j, ((Field) source).link);//updating the current source
+                        } else{
+                            System.out.println("no update");
+                        }
+                            
                         val.iDropped=8;//to verift that the value has changed when updating it next
                         
-                         
+                        
                     }
                     
                 }
@@ -196,8 +250,9 @@ public class Board extends JPanel
                 
                 
         });
-        
+        System.out.println("updated " + indexNew.get(0)+" to " + f.link );
         squares.put(indexNew, f);
+        visualise();
         //System.out.println(indexNew[0]+" "+indexNew[1]);
         
     }

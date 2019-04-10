@@ -25,6 +25,10 @@ public class Main
     private Ai ai;
     boolean forced;///indicates if a forced move requires checking of another move
     public Board guiBoard;
+    
+    private int nrMoves;
+    private int plLoss;
+    private int aiLoss;
     /**
      * Constructor for objects of class Main
      */
@@ -58,14 +62,14 @@ public class Main
         // };
         
         // myBoard = new int[][]{
-        // {0,0,0,0,0,0,0,0},////multicatch
+        // {0,0,0,2,0,0,0,0},////multicatch
+        // {0,0,2,0,0,0,0,0},
         // {0,0,0,0,0,0,0,0},
-        // {0,2,0,0,0,0,0,2},
-        // {2,0,0,0,0,0,0,0},
-        // {0,0,0,0,0,0,0,2},
-        // {0,0,0,0,1,0,0,0},
-        // {0,0,0,4,0,0,0,0},
-        // {0,0,0,0,0,0,3,0},
+        // {0,0,0,0,2,0,0,0},
+        // {0,0,0,0,0,1,0,0},
+        // {0,0,0,0,0,0,0,0},
+        // {0,0,0,0,0,0,0,0},
+        // {0,0,0,0,0,0,0,0},
         
         // };
         
@@ -73,14 +77,17 @@ public class Main
         visualiseState();
         updateAll();//using this state to update the gui
         //gd.addObserver(this);
-        
-        ai=new Ai(3, 1);
+        nrMoves=1;
+        plLoss=0;
+        aiLoss=0;
+        ai=new Ai(3, 3);
     }
     
     private void newPly() {
         
         if(!gameOver()){
             gui.componentPane.boardPane.visualise();
+            
             forced=false;//reset forced move status
             deleteTrails();
             
@@ -88,29 +95,49 @@ public class Main
             ///////////////AI moves
             
             myBoard = ai.getMove(myBoard);
+            lostPiece();
+            gui.componentPane.updateSidebar(nrMoves, plLoss, aiLoss, "");
             
             visualiseState();
+            
             System.out.println("AI move ");
             //printmyBoard();
             
             gui.componentPane.boardPane.visualise();
             
             
+            nrMoves++;
             
         } else {
             System.out.println("Game over, player won");
         }
         if(!gameOver()){
+            
             updateAll();
+            System.out.println("updated all fields");
         }else {
             System.out.println("Game over, AI won");
+        }
+    }
+    private void lostPiece(){
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+               if(myBoard[i][j] == 6){
+                    
+                    plLoss++;
+                }
+            }
         }
     }
     private void deleteTrails(){
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
                 // is the current position available?
-                if (myBoard[i][j] == 5||myBoard[i][j] == 6) {
+                if (myBoard[i][j] == 5) {
+                    myBoard[i][j] = 0;
+                    
+                } else if(myBoard[i][j] == 6){
+                    
                     myBoard[i][j] = 0;
                 }
             }
@@ -149,10 +176,10 @@ public class Main
                 
                 ArrayList<Position> forcedPositions= forcedMove(new Position(i,j));//sees if there are forced moves
         
-        
+                
                 if(forcedPositions.size()>0){//updating gui with listeners
                    gui.componentPane.boardPane.update(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
-                   
+                   aiLoss++;
                    forced=true;//from now on, only states that lead to kicking out an enemy will be updated with the action listeners in gui
                    for(Position pos: forcedPositions){
                        gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
@@ -398,12 +425,16 @@ public class Main
         boolean kingConversion = false;
         int newVal=OCCUPY.mapString(currentLink);/////change the value of the piece that was moved
         myBoard[iSource][jSource]=0;
+        
         if(iDest==0 && myBoard[iDest][jDest]!=4){///player king conversion, therefore, no extra moves possible
             myBoard[iDest][jDest]=4;
+            
             kingConversion=true;
         } else{//piece stays the same
             myBoard[iDest][jDest]=newVal;
+            
         }
+        
         
         visualiseState();
         //printmyBoard();
@@ -437,6 +468,7 @@ public class Main
 
 
         if(forcedPositions.size()>0){//updating gui with listeners
+           aiLoss++;
            gui.componentPane.boardPane.update(toList(iDest,jDest), OCCUPY.mapStatus(myBoard[iDest][jDest]));
            //from now on, only states that lead to kicking out an enemy will be updated with the action listeners in gui
            for(Position pos: forcedPositions){

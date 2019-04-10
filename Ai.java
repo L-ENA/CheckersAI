@@ -134,7 +134,7 @@ public class Ai
                 return -100;
             else
                 return 100;
-        } else if(depth >6) {
+        } else if(depth >8) {
             seCount++;    
             int score = Evaluator.evaluate(this.state, heuristic);//not sure which state that is atm
             //System.out.println(player);
@@ -271,7 +271,25 @@ public class Ai
             successorEvaluations.add(new StateAndScores(score, state));
         }
     }
-    
+    private boolean isValid( int[][] previous,  int[][] candidate){
+        
+            for (int i = 0; i < 8; ++i) {
+                for (int j = 0; j < 8; ++j) {
+                 //is the current position available in general?
+                 if(candidate[i][j] ==6 && previous[i][j] ==6){
+                    if(candidate[i-1][j-1]==5 && candidate[i+1][j+1]==5){
+                        return true;
+                    } else if(candidate[i-1][j+1]==5 && candidate[i+1][j-1]==5) {
+                        return true;
+                    } else{
+                        return false;
+                    }
+                    
+                }
+            }
+        }
+        return false;
+    }
     private ArrayList<int[][]> getAvailableStates(int[][] someState){
         
         this.forced=false;
@@ -279,21 +297,33 @@ public class Ai
         //int[][] pastPosition = new int[8][8];
         //System.out.println("trying to grt states... ");
         ArrayList<int[][]> candidates = forcedMove(someState);
-                
+        int[][] previous;        
         for(int i = 0; i<candidates.size(); i++){
             this.forced= true;
             freePositions.add(candidates.get(i));
+            previous = candidates.get(i);
             ArrayList<int[][]> secondary = forcedMove(candidates.get(i));
             if(secondary.size() > 0){
-                freePositions = new ArrayList<>();
+                
+                ArrayList<int[][]> validated = new ArrayList<>();
+                
                 for(int[][] candidate : secondary){
-                    freePositions.add(candidate);
-                    candidates.add(candidate);
+                    if(isValid(previous, candidate)){
+                        validated.add(candidate);
+                        candidates.add(candidate);
                     }
-                }
+                    
+                    }
+                if(validated.size()>0){
+                    freePositions = new ArrayList<>();
+                    for(int[][] candidateV : validated){
+                        freePositions.add(candidateV);
+                    
+                    }
+                   }
             
             }
-        
+        }
         if(!this.forced){///there is no forced position
             for (int i = 0; i < 8; ++i) {
                 for (int j = 0; j < 8; ++j) {

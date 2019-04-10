@@ -34,6 +34,7 @@ public class Validator
         hit=false;
         dontUpdate=false;
         isKing=false;
+        iDropped=8;
     }
     
     public void setKing(boolean isK){
@@ -106,6 +107,13 @@ public class Validator
         return false;
     }
     
+    protected int[] getIndex(){
+        List<ArrayList<Position>> valuesList = new ArrayList<ArrayList<Position>>(validatingPositions.values());
+        int randomIndex = new Random().nextInt(valuesList.size());
+        ArrayList<Position> randomValue = valuesList.get(randomIndex);
+        Position posi = randomValue.get(new Random().nextInt(randomValue.size()));
+        return new int[]{posi.i, posi.j};
+    }
     private boolean checkHit(){//find coordinates of hit checkers
         
         int iDiff= (iDropped - lastClicked.get(0));
@@ -145,3 +153,4 @@ public class Validator
         return dontUpdate;
     }
 }
+
