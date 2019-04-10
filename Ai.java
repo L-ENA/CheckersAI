@@ -93,8 +93,8 @@ public class Ai
             }
             //System.out.println("Option "+ i + " results in "+ successorEvaluations.get(i).score);
         }
-        System.out.println("best score is "+ successorEvaluations.get(best).score);
-        printState(successorEvaluations.get(best).state);
+        //System.out.println("best score is "+ successorEvaluations.get(best).score);
+        //printState(successorEvaluations.get(best).state);
         return successorEvaluations.get(best).state;
         
     }

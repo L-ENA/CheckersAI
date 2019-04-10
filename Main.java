@@ -48,12 +48,24 @@ public class Main
         // myBoard = new int[][]{
         // {0,0,0,0,0,0,0,0},////multicatch
         // {0,0,0,0,0,0,0,0},
-        // {0,2,0,0,0,0,0,0},
-        // {0,0,0,0,2,0,0,0},
+        // {0,2,0,0,0,0,0,2},
+        // {2,0,0,0,1,0,0,0},
+        // {0,1,0,1,0,0,0,2},
+        // {0,0,0,0,1,0,0,0},
+        // {0,1,0,0,0,0,0,0},
+        // {0,0,0,0,0,0,3,0},
+        
+        // };
+        
+        // myBoard = new int[][]{
+        // {0,0,0,0,0,0,0,0},////multicatch
         // {0,0,0,0,0,0,0,0},
-        // {0,0,0,0,0,0,0,0},
+        // {0,2,0,0,0,0,0,2},
+        // {2,0,0,0,0,0,0,0},
+        // {0,0,0,0,0,0,0,2},
+        // {0,0,0,0,1,0,0,0},
         // {0,0,0,4,0,0,0,0},
-        // {0,0,0,0,0,0,0,0},
+        // {0,0,0,0,0,0,3,0},
         
         // };
         
@@ -68,7 +80,7 @@ public class Main
     private void newPly() {
         
         if(!gameOver()){
-            
+            gui.componentPane.boardPane.visualise();
             forced=false;//reset forced move status
             deleteTrails();
             
@@ -179,6 +191,12 @@ public class Main
         //printmyBoard();
     }
     
+    private boolean isFree(int i,int j){
+        if (myBoard[i][j]==0||myBoard[i][j]==5||myBoard[i][j]==6)
+            return true;
+        else
+            return false;
+    }
     private ArrayList<Position> forcedMove(Position pos){
         boolean beats = false;
         ArrayList<Position> forcedPositions = new ArrayList<Position>();
@@ -189,7 +207,7 @@ public class Main
                     if(pos.i>0 && pos.j>0){//looking at front left
                         if (myBoard[pos.i-1][pos.j-1]==2||myBoard[pos.i-1][pos.j-1]==3){ //if there is an enemy ahead
                             try{
-                            if(myBoard[pos.i-2][pos.j-2]==0||myBoard[pos.i-2][pos.j-2]==5){//left back of enemy
+                            if(isFree(pos.i-2,pos.j-2)){//left back of enemy
                                 forcedPositions.add(new Position(pos.i-2,pos.j-2));
                                 //recursion for getting all forced moves forcedMove(player, new Position(pos.i-2,pos.j-2));
                             }
@@ -201,7 +219,7 @@ public class Main
                         if (myBoard[pos.i-1][pos.j+1]==2||myBoard[pos.i-1][pos.j+1]==3){ //enemy to front right
                             
                             try{
-                            if(myBoard[pos.i-2][pos.j+2]==0||myBoard[pos.i-2][pos.j+2]==5){//right back
+                            if(isFree(pos.i-2,pos.j+2)){//right back
                                 forcedPositions.add(new Position(pos.i-2,pos.j+2));
                             }
                             }catch (Exception e){}
@@ -218,7 +236,7 @@ public class Main
                         jLeft=-1;
                     
                     }else if(myBoard[down][jLeft]==2||myBoard[down][jLeft]==3){//there is an enemy piece
-                            if(myBoard[down+1][jLeft-1]==0||myBoard[down+1][jLeft-1]==5){//if place behind is free
+                            if(isFree(down + 1,pos.j-1)){//if place behind is free
                                 forcedPositions.add(new Position(down+1,jLeft-1));
                                 
                                 jLeft=-1;
@@ -233,7 +251,7 @@ public class Main
                         jRight=7;
                     
                     }else if(myBoard[down][jRight]==2||myBoard[down][jRight]==3){
-                            if(myBoard[down+1][jRight+1]==0||myBoard[down+1][jRight+1]==5){
+                            if(isFree(down + 1,jRight+1)){
                                 forcedPositions.add(new Position(down+1,jRight+1));
                                 
                                 jRight=7;
@@ -254,7 +272,7 @@ public class Main
                         jLeft=-1;
                     
                     }else if(myBoard[up][jLeft]==2||myBoard[up][jLeft]==3){
-                            if(myBoard[up-1][jLeft-1]==0||myBoard[up-1][jLeft-1]==5){
+                            if(isFree(up -1,jLeft-1)){
                                 forcedPositions.add(new Position(up-1,jLeft-1));
                                 
                                 jLeft=-1;
@@ -269,7 +287,7 @@ public class Main
                         jRight=7;
                     
                     }else if(myBoard[up][jRight]==2||myBoard[up][jRight]==3){
-                            if(myBoard[up-1][jRight+1]==0||myBoard[up-1][jRight+1]==5){
+                            if(isFree(up-1,jRight+1)){
                                 forcedPositions.add(new Position(up-1,jRight+1));
                                 
                                 jRight=7;
@@ -318,25 +336,25 @@ public class Main
         if(type==1){//a white piece was selected
             
             if(i>0 && j>0){
-                if (myBoard[i-1][j-1]==0||myBoard[i-1][j-1]==5) 
+                if (isFree(i-1,j-1)) 
                     candidates.add(new Position(i-1,j-1));
                 }    
             if(i>0 && j<7) {   
-                if (myBoard[i-1][j+1]==0||myBoard[i-1][j+1]==5) 
+                if (isFree(i-1,j+1)) 
                     candidates.add(new Position(i-1,j+1));
                 } 
         } else if (type==4){///a white king
             int jLeft=j-1;
             int jRight=j+1;
-            for(int down = i+1; down<7; down++){
+            for(int down = i+1; down<=7; down++){
                 if(jLeft>=0){
-                    if(myBoard[down][jLeft]==0||myBoard[down][jLeft]==5){
+                    if(isFree(down,jLeft)){
                     candidates.add(new Position(down,jLeft));
                 }
                 jLeft--;
                 }
                 if(jRight<=7){
-                    if(myBoard[down][jRight]==0||myBoard[down][jRight]==5){
+                    if(isFree(down,jRight)){
                     candidates.add(new Position(down,jRight));
                 }
                 jRight++;
@@ -345,15 +363,15 @@ public class Main
             }
             jLeft=j-1;
             jRight=j+1;
-            for(int up = i-1; up>0; up--){
+            for(int up = i-1; up>=0; up--){
                 if(jLeft>=0){
-                    if(myBoard[up][jLeft]==0||myBoard[up][jLeft]==5){
+                    if(isFree(up,jLeft)){
                     candidates.add(new Position(up,jLeft));
                 }
                 jLeft--;
                 }
                 if(jRight<=7){
-                    if(myBoard[up][jRight]==0|myBoard[up][jRight]==5){
+                    if(isFree(up,jRight)){
                     candidates.add(new Position(up,jRight));
                 }
                 jRight++;

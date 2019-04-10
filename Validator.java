@@ -12,8 +12,8 @@ public class Validator
     
     private boolean dontUpdate;
     ////////coordinates for attempts to move
-    private ArrayList<Integer> lastClicked;
-    private int iDropped;
+    public ArrayList<Integer> lastClicked;
+    public int iDropped;
     private int jDropped;
     
     /////////////////contains all acceptable positions that the player could legally carry out
@@ -48,6 +48,8 @@ public class Validator
         }
     }
     
+    
+    
     public void setClicked(int i, int j){
         lastClicked = new ArrayList<Integer>();
         lastClicked.add(i);
@@ -77,16 +79,23 @@ public class Validator
                 //return false;
                 
             //}
+            
             ArrayList<Position> allowedDrops = validatingPositions.get(lastClicked);
             
             for (Position pos : allowedDrops ){//check if last drop is an entry in the list we fetched
                 //System.out.println("try pos " + pos.i+pos.j);
                 //System.out.println("Allowed drop " + pos.i+ " " + pos.j);
-                if(pos.i == iDropped && pos.j == jDropped){
+                if(lastClicked.get(0)==iDropped && lastClicked.get(1)==jDropped){
+                    System.out.println("falseeeeeeeeeeeeeeeeeeeeeeeeeeee");
+                    return false;
+                }
+                    if(pos.i == iDropped && pos.j == jDropped){
                     this.hit = checkHit();//determines if enemy was hit
                     dontUpdate=false;
                     return true;
                 }
+                
+                
             }
             } catch(Exception e){//the map was empty at that key
                 System.out.println("caught");

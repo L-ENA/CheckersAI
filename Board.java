@@ -91,11 +91,7 @@ public class Board extends JPanel
             
         
             /////////enable moving instead of copying
-            @Override
-            public int getSourceActions(JComponent c) {///to allow move option
-                System.out.println("to move (addTransfer method)");
-                return COPY | MOVE;
-            }
+            
             
             
             ///importing new checkers picture
@@ -118,9 +114,7 @@ public class Board extends JPanel
                 if(val.validateDrop())
                     return true;
                 else {
-                    try{
-                        Thread.sleep(200);
-                    } catch(InterruptedException e){}
+                    
                     return false;
                 }
                     
@@ -153,7 +147,7 @@ public class Board extends JPanel
                
                val.setClicked(f.i, f.j);
                
-               //System.out.println("val setclicked finished");
+               System.out.println("val setclicked finished");
            }
         
         };
@@ -177,7 +171,7 @@ public class Board extends JPanel
             //////delete old label
             @Override
             protected void exportDone(JComponent source, Transferable data, int action) {//to delete the source image
-                //System.out.println("exportDone update() method");
+                System.out.println("exportDone update() method");
                 if (action == MOVE){
                     //System.out.println("exp done");
                     if (!val.getDontUpdate()){//if we are allowed to update
@@ -187,8 +181,11 @@ public class Board extends JPanel
                             game.doEnemyElimination(enemyPosition[0], enemyPosition[1]);
                         }
                         
-                        game.setSource(((Field) source).i, ((Field) source).j, ((Field) source).link);//updating the current source
-                        //((Field) source).setIC("");///removing item from source
+                        if(val.iDropped!=8)
+                            game.setSource(((Field) source).i, ((Field) source).j, ((Field) source).link);//updating the current source
+                        val.iDropped=8;//to verift that the value has changed when updating it next
+                        
+                         
                     }
                     
                 }
