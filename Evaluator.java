@@ -8,9 +8,9 @@
 public class Evaluator
 {
     // instance variables - replace the example below with your own
-    static final int NR_PIECES=1;
-    static final int NR_AND_SCORE=2;
-    static final int NR_AND_SCORE_AND_POSITION=3;
+    static final String P="Pieces";
+    static final String P_W="Pieces + Weights";
+    static final String P_W_P="Pieces + Weights + Positions";
     
     /**
      * Constructor for objects of class Evaluator
@@ -113,14 +113,14 @@ public class Evaluator
      * @param  y  a sample parameter for a method
      * @return    the sum of x and y
      */
-    public static int evaluate(int[][] candidate, int heur){
+    public static int evaluate(int[][] candidate, String heur){
         int result = Integer.MIN_VALUE;
         switch (heur) {
-            case 1:  
+            case P:  
                     result= pieces(candidate);
-            case 2:
+            case P_W:
                     result= piecesWeighted(candidate);
-            case 3: 
+            case P_W_P: 
                     result= piecesUltimate(candidate);
             }
         //System.out.println("Heuristic eval is: " + result);

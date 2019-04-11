@@ -29,6 +29,12 @@ public class Main
     private int nrMoves;
     private int plLoss;
     private int aiLoss;
+    private int seCount;
+    private int deCount;
+    private int pCount;
+    private String heuristic;
+    private String level;
+    private boolean longJump;
     /**
      * Constructor for objects of class Main
      */
@@ -73,16 +79,35 @@ public class Main
         
         // };
         
-        forced =false;
-        visualiseState();
-        updateAll();//using this state to update the gui
+        
         //gd.addObserver(this);
+        
+        //////////////variables for settings and stats
         nrMoves=1;
         plLoss=0;
         aiLoss=0;
-        ai=new Ai(3, 3);
+        seCount=0;
+        deCount=0;
+        pCount=0;
+        heuristic=gui.componentPane.heur;
+        level= gui.componentPane.selectedLevel;
+        longJump=gui.componentPane.longJumps;
+        forced =false;
+        visualiseState();
+        updateAll();//using this state to update the gui
+        
+        
     }
-    
+    private void updateAI(){
+        heuristic=gui.componentPane.heur;
+        level= gui.componentPane.selectedLevel;
+        longJump=gui.componentPane.longJumps;
+        System.out.println();
+        System.out.println(heuristic);
+        System.out.println(level);
+        System.out.println();
+        ai=new Ai(level, heuristic, longJump);
+    }
     private void newPly() {
         
         if(!gameOver()){
@@ -93,15 +118,13 @@ public class Main
             
             System.out.println("new round");
             ///////////////AI moves
+            updateAI();
             
             myBoard = ai.getMove(myBoard);
             lostPiece();
-            gui.componentPane.updateSidebar(nrMoves, plLoss, aiLoss, "");
+            gui.componentPane.updateSidebar(nrMoves, plLoss, aiLoss, ai.seCount, ai.deCount, ai.pCount);
             
             visualiseState();
-            
-            System.out.println("AI move ");
-            //printmyBoard();
             
             gui.componentPane.boardPane.visualise();
             
@@ -290,6 +313,8 @@ public class Main
                     jRight++;
                     }
                     
+                    if(!longJump)//not allowing more than 1 jump
+                        break;
                     }
                 jLeft=pos.j-1;
                 jRight=pos.j+1;
@@ -326,6 +351,8 @@ public class Main
                     jRight++;
                     }
                     
+                    if(!longJump)//not allowing more than 1 jump
+                        break;
                 }
             }
                 
@@ -387,6 +414,8 @@ public class Main
                 jRight++;
                 }
                 
+                if(!longJump)//not allowing more than 1 jump
+                        break;
             }
             jLeft=j-1;
             jRight=j+1;
@@ -403,6 +432,9 @@ public class Main
                 }
                 jRight++;
                 }
+                
+                if(!longJump)//not allowing more than 1 jump
+                        break;
             }
         }
         

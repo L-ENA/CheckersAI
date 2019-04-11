@@ -8,28 +8,37 @@ import java.util.*;
 public class Ai
 {
     // instance variables - replace the example below with your own
-    private int level;
+    
     protected int[][] state;
-    int deCount, seCount, pCount; // cost for dynamic & static evaluation; number of pruning operations
+    
     List<Position> availablePositions;
     List<StateAndScores> successorEvaluations;
     ArrayList<int[][]> statesAvailable;
     boolean forced = false;
     ArrayList<int[][]> candidatesG;//all candidates for a simple diagonal move
-    int heuristic;
+    private String heuristic;
+    private boolean kingConversion;
     Random r;
     int[][] lastState;
-    private int maxSE;
+    
+    private boolean longJump;
+    private int maxDepth;
     private int player;
+    private String level;
+    protected int deCount, seCount, pCount; // cost for dynamic & static evaluation; number of pruning operations
     /**
      * Constructor for objects of class Ai
      */
-    public Ai(int level, int heuristic)
+    public Ai(String level, String heuristic, boolean longJump)
     {
         // initialise instance variables
         this.level = level;
         this.heuristic = heuristic;
+        this.longJump=longJump;
         this.r = new Random();
+        this.deCount=0;
+        this.seCount=0;
+        this.pCount=0;
     }
 
     /**
@@ -45,14 +54,23 @@ public class Ai
         int[][]returnState;
         lastState = cloneState(myBoard);
         switch (level) {
-          case 1:
+          case "Kindergarden":
+            System.out.println("Kindergarden");
             return randomMove();
             
-          case 2:
-            
+          case "Novice":
+            System.out.println("Novice");
             return bestMove();
-          case 3:
-            return depth2();
+          case "Intermediate":
+            System.out.println("Intermediate");
+            this.maxDepth = 2;
+            return mmEvaluation();
+          case "Professional":
+            this.maxDepth = 6;
+            return mmEvaluation();
+          case "Ultimate Genius":
+          this.maxDepth = 10;
+            return mmEvaluation();  
           default:
             System.out.println("No level selected");
             return randomMove();
@@ -76,8 +94,8 @@ public class Ai
         return getBestSuccessor();
     }
     
-    private int[][] depth2(){
-        maxSE=10;
+    private int[][] mmEvaluation(){
+        
         player=1;
         System.out.println("Calculating");
         minimaxEvaluation();//determine successors
@@ -100,9 +118,6 @@ public class Ai
     }
     
     private void minimaxEvaluation(){
-        deCount = 0;
-        seCount = 0;
-        pCount = 0;
         successorEvaluations = new ArrayList<>();
         
         minimax(0, 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -134,7 +149,7 @@ public class Ai
                 return -100;
             else
                 return 100;
-        } else if(depth >8) {
+        } else if(depth >maxDepth) {
             seCount++;    
             int score = Evaluator.evaluate(this.state, heuristic);//not sure which state that is atm
             //System.out.println(player);
@@ -272,7 +287,8 @@ public class Ai
         }
     }
     private boolean isValid( int[][] previous,  int[][] candidate){
-        
+        int kOld=0;
+        int kNew=0;
             for (int i = 0; i < 8; ++i) {
                 for (int j = 0; j < 8; ++j) {
                  //is the current position available in general?
@@ -286,12 +302,15 @@ public class Ai
                     }
                     
                 }
+                
             }
         }
+        
+        
         return false;
     }
     private ArrayList<int[][]> getAvailableStates(int[][] someState){
-        
+        this.kingConversion=false;
         this.forced=false;
         ArrayList<int[][]> freePositions = new ArrayList<>();
         //int[][] pastPosition = new int[8][8];
@@ -401,7 +420,7 @@ public class Ai
             } 
         }
         
-        
+        kingConversion=true;
         return st;
     }
     private void simpleMove(int iNew,int jNew,Position pos, int[][] someState){//moving and updating the candidate state
@@ -465,6 +484,8 @@ public class Ai
                             jRight=8;
                         }
                      }    
+                    if(!longJump)//not allowing more than 1 jump
+                        break; 
                 }
                 jLeft = pos.j-1; 
                 jRight = pos.j+1;
@@ -484,7 +505,9 @@ public class Ai
                         }else {
                             jRight=8;
                         }
-                     }    
+                     }
+                     if(!longJump)//not allowing more than 1 jump
+                        break;
                 }
             } 
             
@@ -520,7 +543,9 @@ public class Ai
                     }else {
                         jRight=8;
                     }
-                 }    
+                 }   
+                 if(!longJump)//not allowing more than 1 jump
+                        break;
             }
             jLeft = pos.j-1; 
             jRight = pos.j+1;
@@ -540,7 +565,9 @@ public class Ai
                     }else {
                         jRight=8;
                     }
-                 }    
+                 }
+                 if(!longJump)//not allowing more than 1 jump
+                        break;
             }
         }
         }
