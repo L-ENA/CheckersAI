@@ -64,6 +64,8 @@ public class Ai
             return bestMove();
           case "Intermediate":
             //System.out.println("Intermediate");
+            if(nrMoves<2)//first 2 moves don't matter, can be just the best immediate moves
+              return bestMove();
             this.maxDepth = 2;
             return mmEvaluation();
           case "Professional":
@@ -100,9 +102,17 @@ public class Ai
     }
     
     private int[][] mmEvaluation(){
-        
         player=1;
         System.out.println("Calculating");
+        /////////check if there is more than 1 move to start with. No minimax necessary if there is only 1 move
+        List<int[][]> positionsAvailable = getAvailableStates(this.state);
+        if(positionsAvailable.size() == 1){
+            
+            System.out.println("there was only 1 option");
+            return positionsAvailable.get(0);
+        }
+            
+            
         minimaxEvaluation();//determine successors
         int max = -10000;
         int best = -1;
@@ -124,6 +134,7 @@ public class Ai
                 bestSuccessors.add(bestScore);
         }
         int index = r.nextInt(bestSuccessors.size());
+        System.out.println("Using one that returns "+ bestSuccessors.get(index).score);
         return bestSuccessors.get(index).state;
         
         
@@ -163,10 +174,7 @@ public class Ai
                 return 100;
         } else if(depth >maxDepth) {
             seCount++;    
-            int score = Evaluator.evaluate(this.state, heuristic);//not sure which state that is atm
-            //System.out.println(player);
-            //System.out.println("best score for below is "+score);
-            //printState(lastState);
+            int score = Evaluator.evaluate(this.state, heuristic);//apply heuristic evaluation
             return score;
               
         } 
@@ -516,7 +524,6 @@ public class Ai
                     if(jLeft>=0){
                         if(isFree(someState[i][jLeft])){
                             simpleMove(i, jLeft, pos, someState);
-                            System.out.println("King can move down left");
                             jLeft--;
                         }else {
                             jLeft=-1;
@@ -525,7 +532,6 @@ public class Ai
                     if(jRight<=7){    
                         if(isFree(someState[i][jRight])){    
                             simpleMove(i, jRight, pos, someState);
-                            System.out.println("King can move down right");
                             jRight++;
                         }else {
                             jRight=8;

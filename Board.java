@@ -9,18 +9,12 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
- 
 /**
- * Write a description of class Board here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * Board is the jpanel that displays the checkers board
  */
 public class Board extends JPanel
 {
-    // instance variables - replace the example below with your own
-    int length = 8;
+    int length = 8;//dimensions of the board
     int width = 8;
     Validator val = new Validator();//checks if drag and drops are valid moves
     LinkedHashMap<ArrayList<Integer>, Field> squares = new LinkedHashMap<ArrayList<Integer>, Field>();
@@ -31,79 +25,39 @@ public class Board extends JPanel
      */
     public Board(Main game)
     {
-        
-  
-        
-        boolean black = false;////create initial gui state
+        boolean black = false;////create the fields for the board
         for (int i=0; i<8;i++){
             for (int j=0; j<8;j++){
-                
                 Field gameField = new Field(new int[] {i,j}, black);
                 ArrayList<Integer> l = new ArrayList<Integer>();
                 l.add(i);
                 l.add(j);
-                //guiState.add(gameField);
                 squares.put(l, gameField);
                 black= !black;//flipping colour variable
             }
             black= !black;//flipping colour variable
         }
-        
-        
         visualise();
         this.game=game;
     }
     
     protected void addValidationMap(HashMap<ArrayList<Integer>, ArrayList<Position>> validatingPositions){
-        val.updateHashMap(validatingPositions);
+        val.updateHashMap(validatingPositions);//add the map that allows val to validate moves
     }
-    ////visualising board according to the current gui state
-    protected void visualise(){
+    
+    protected void visualise(){////visualising board according to the current gui state
         this.removeAll();
         this.setLayout(new GridLayout(8,8));  
-        
-        //setting grid layout of 3 rows and 3 columns  
         Set<ArrayList<Integer>> keys = squares.keySet();
-        
         for(ArrayList<Integer> index :keys){
             this.add(squares.get(index));
-            
         }
         this.setSize(300,300); 
         this.revalidate();
         this.repaint();
         this.setVisible(true);
     }
-    
-    protected void deleteSource(int i, int j){//delete image of a source component to update gui between moves
-        
-        Field toDelete = new Field();
-        for (Component c : this.getComponents()){
-           if (c instanceof Field){
-                toDelete = (Field) c;
-                if(toDelete.i==i && toDelete.j==j){
-                    
-                    
-                    toDelete.setIC("");
-                    System.out.println("want to update " + i +" " + j);
-                    System.out.println(toDelete.link);
-                    break;
-                }
-            }
-        }
-        
-        
-        
-        
-        
-        this.setSize(300,300); 
-        this.revalidate();
-        this.repaint();
-        this.setVisible(true);
-        
-    }
-    
-    protected void showOptions(){
+    protected void showOptions(){//highlight one possible destination
         int[] ind = val.getIndex();
         Field f = new Field();
         for (Component c : this.getComponents()){
@@ -121,164 +75,100 @@ public class Board extends JPanel
         this.setVisible(true);
     }
     
-    private void deleteTrails(){
+    private void deleteTrails(){//gets rid of the crossed out stones and feet icons
         for (Component c : this.getComponents()){
-            //System.out.println(c.toString());
-
             if (c instanceof Field){
                 Field f = (Field) c;
                 if(f.link=="feet.png" || f.link=="kick.png")
                     f.setIC("");
             }
-            
         }
-        
         this.setSize(300,300); 
         this.revalidate();
         this.repaint();
         this.setVisible(true);
     }
-    public void updateNoListeners(ArrayList<Integer> indexNew, String link){
-        //System.out.println(link+ " no listeners "   +indexNew.get(0) + indexNew.get(1));
+    public void updateNoListeners(ArrayList<Integer> indexNew, String link){//updates a single field
         Field f = squares.get(indexNew);
         f = new Field(f.index, f.black);
-        //System.out.println(squares.keySet());
         f.setIC(link);
-        
         squares.put(indexNew, f);
     }
-    
-    public void addTransfer(ArrayList<Integer> indexNew){
+    public void addTransfer(ArrayList<Integer> indexNew){//update a single field with transfer handlers etc
         Field f = squares.get(indexNew);//get the corresponding field
-        
-        //System.out.println("addTransfer items to " + indexNew.get(0) + " " + indexNew.get(1));
         f.setTransferHandler(new TransferHandler("icon"){
-            
-        
-            /////////enable moving instead of copying
-            
-            
-            
-            ///importing new checkers picture
+          /////////enable moving instead of copying
             @Override
             public boolean importData(TransferHandler.TransferSupport info) {
-                //System.out.println("imp data (addTransfer method)");
                 Field dropped = (Field) info.getComponent();
-                
                 game.setDest(dropped.i, dropped.j);
-                
                 return super.importData(info);
             }
             @Override
-            public boolean canImport(TransferHandler.TransferSupport info) {
-                //System.out.println("canImport (addTransfer method)");
-                //info.setShowDropLocation(true);
+            public boolean canImport(TransferHandler.TransferSupport info) {//check if drop location is a valid move
                 Field dropped = (Field) info.getComponent();
                 val.tryDestination(dropped.i, dropped.j);
-                //System.out.println("try import "+dropped.i+ " "+ dropped.j);
                 if(val.validateDrop())
                     return true;
                 else {
-                    
                     return false;
                 }
-                    
             }
-                
         });
-        
-        squares.put(indexNew, f);
+        squares.put(indexNew, f);//put field back into squares
     }
     /**
-     * checking if this is the right field, and updating it with clickable and transferhandler that can handle if the checkers is dropped back
+     * checking if this is the right field, and updating it with mouse listeners to make it clickable
      */
     public void update(ArrayList<Integer> indexNew, String link)
     {
-        //squares.put(indexNew, new Field(indexNew, link));
-        
         MouseListener listener = new DragMouseAdapter(indexNew, link){
-           
-           @Override 
-           public void mousePressed(MouseEvent e) {
-               //System.out.println("mousePressed (update() )");
+            @Override 
+            public void mousePressed(MouseEvent e) {
                Field f = (Field)e.getSource();
-               
                TransferHandler handler = f.getTransferHandler();
-               //System.out.println("Click!");
-               
-               //if(game.canMove(this.pos)){
                handler.exportAsDrag(f, e, TransferHandler.MOVE);
-               // }
-               
                val.setClicked(f.i, f.j);
                deleteTrails();
-               System.out.println("val setclicked finished");
-           }
-        
+            }
         };
-        
-        //String key = String.valueOf(indexNew[0])+","+String.valueOf(indexNew[1]);
         Field f = squares.get(indexNew);
-        //System.out.println(squares.keySet());
         f.setIC(link);
         f.addMouseListener(listener);
         f.setTransferHandler(new TransferHandler("icon"){
-            
-        
-            /////////enable moving instead of copying
-            @Override
-            public int getSourceActions(JComponent c) {///to allow move option
-                //System.out.println("imp data (update method, getSourceactions)");
-                return COPY | MOVE;
-                
-            }
-            
-            //////delete old label
-            @Override
-            protected void exportDone(JComponent source, Transferable data, int action) {//to delete the source image
-                System.out.println("exportDone update() method");
-                if (action == MOVE){
-                    //System.out.println("exp done");
-                    if (!val.getDontUpdate()){//if we are allowed to update
-                        ///////////////////////////////////////////////checking for eliminated checkers
-                        int[] enemyPosition = val.getFeedback();
-                        if(enemyPosition != null){
-                            
-                            
-                            game.doEnemyElimination(enemyPosition[0], enemyPosition[1]);
+                @Override/////////enable moving instead of copying
+                public int getSourceActions(JComponent c) {///to allow move option
+                    return COPY | MOVE;
+                }
+                @Override//////delete old label
+                protected void exportDone(JComponent source, Transferable data, int action) {//to delete the source image
+                    System.out.println("exportDone update() method");
+                    if (action == MOVE){
+                        //System.out.println("exp done");
+                        if (!val.getDontUpdate()){//if we are allowed to update
+                            ///////////////////////////////////////////////checking for eliminated checkers
+                            int[] enemyPosition = val.getFeedback();
+                            if(enemyPosition != null){
+                                game.doEnemyElimination(enemyPosition[0], enemyPosition[1]);
+                            }
+                            if(val.iDropped!=8){
+                                System.out.println("update");
+                                Field f= (Field) source;
+                                game.setSource(f.i, f.j, f.link);//updating the current source
+                            } else{
+                                System.out.println("no update");
+                            }
+                            val.iDropped=8;//to verift that the value has changed when updating it next
+                            System.out.println("UPDATED CURRENT MOVE");
                         }
-                        
-                        if(val.iDropped!=8){
-                            System.out.println("update");
-                            
-                            Field f= (Field) source;
-                            
-                            game.setSource(f.i, f.j, f.link);//updating the current source
-                        } else{
-                            System.out.println("no update");
-                        }
-                            
-                        val.iDropped=8;//to verift that the value has changed when updating it next
-                        System.out.println("UPDATED CURRENT MOVE");
-                        
                     }
                     
                 }
-                
-            }
-            
-            
-                
-                
-        });
-        //System.out.println("updated " + indexNew.get(0)+" to " + f.link );
-        squares.put(indexNew, f);
-        visualise();
-        //System.out.println(indexNew[0]+" "+indexNew[1]);
-        
+         });
+         squares.put(indexNew, f);
+         visualise();
     }
-    
-    protected void triggerRestart(){
+    protected void triggerRestart(){//signal to restart
         game.setUp(true);
     }
 }
