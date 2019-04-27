@@ -40,12 +40,8 @@ public class Gui
     
     
     
-    protected boolean exitMessage(String message, String title, boolean won){
-        if(won==true){
-            //logger.warning("Player won");
-        } else{
-            //logger.warning("Player lost");
-        }
+    protected boolean exitMessage(String message, String title){
+        
         String[] options = {"Play again","Exit"};
         int choice = JOptionPane.showOptionDialog(mainFrame, //Component parentComponent
                message, //Object message,

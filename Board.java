@@ -75,34 +75,52 @@ public class Board extends JPanel
         this.setVisible(true);
     }
     
-    protected void showOptions(){
-        int[] ind = val.getIndex();
-        Field f = new Field();
+    protected void deleteSource(int i, int j){//delete image of a source component to update gui between moves
+        
+        Field toDelete = new Field();
         for (Component c : this.getComponents()){
-            //System.out.println(c.toString());
-
-            if (c instanceof Field){
-                f = (Field) c;
-                
-                if(f.i==ind[0] && f.j==ind[1]){
-                    f.setIC("empty.png");
+           if (c instanceof Field){
+                toDelete = (Field) c;
+                if(toDelete.i==i && toDelete.j==j){
                     
+                    
+                    toDelete.setIC("");
+                    System.out.println("want to update " + i +" " + j);
+                    System.out.println(toDelete.link);
                     break;
                 }
-                    
-                    
             }
-            
         }
+        
+        
+        
+        
         
         this.setSize(300,300); 
         this.revalidate();
         this.repaint();
         this.setVisible(true);
         
-        //f.setIC("");
-        
     }
+    
+    protected void showOptions(){
+        int[] ind = val.getIndex();
+        Field f = new Field();
+        for (Component c : this.getComponents()){
+           if (c instanceof Field){
+                f = (Field) c;
+                if(f.i==ind[0] && f.j==ind[1]){
+                    f.setIC("empty.png");
+                    break;
+                }
+            }
+        }
+        this.setSize(300,300); 
+        this.revalidate();
+        this.repaint();
+        this.setVisible(true);
+    }
+    
     private void deleteTrails(){
         for (Component c : this.getComponents()){
             //System.out.println(c.toString());
@@ -225,20 +243,23 @@ public class Board extends JPanel
                         ///////////////////////////////////////////////checking for eliminated checkers
                         int[] enemyPosition = val.getFeedback();
                         if(enemyPosition != null){
+                            
+                            
                             game.doEnemyElimination(enemyPosition[0], enemyPosition[1]);
                         }
                         
                         if(val.iDropped!=8){
                             System.out.println("update");
                             
+                            Field f= (Field) source;
                             
-                            game.setSource(((Field) source).i, ((Field) source).j, ((Field) source).link);//updating the current source
+                            game.setSource(f.i, f.j, f.link);//updating the current source
                         } else{
                             System.out.println("no update");
                         }
                             
                         val.iDropped=8;//to verift that the value has changed when updating it next
-                        
+                        System.out.println("UPDATED CURRENT MOVE");
                         
                     }
                     
@@ -250,10 +271,14 @@ public class Board extends JPanel
                 
                 
         });
-        System.out.println("updated " + indexNew.get(0)+" to " + f.link );
+        //System.out.println("updated " + indexNew.get(0)+" to " + f.link );
         squares.put(indexNew, f);
         visualise();
         //System.out.println(indexNew[0]+" "+indexNew[1]);
         
+    }
+    
+    protected void triggerRestart(){
+        game.setUp(true);
     }
 }

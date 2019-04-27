@@ -12,15 +12,28 @@ public class Evaluator
     static final String P_W="Pieces + Weights";
     static final String P_W_P="Pieces + Weights + Positions";
     
-    /**
-     * Constructor for objects of class Evaluator
-     */
-    public Evaluator()
-    {
-        // initialise instance variables
-        
-    }
     
+    
+    /**
+     * An example of a method - replace this comment with your own
+     *
+     * @param  y  a sample parameter for a method
+     * @return    the sum of x and y
+     */
+    public static int evaluate(int[][] candidate, String heur){
+        int result = Integer.MIN_VALUE;
+        switch (heur) {
+            case P:  
+                    result= pieces(candidate);
+            case P_W:
+                    result= piecesWeighted(candidate);
+            case P_W_P: 
+                    result= piecesUltimate(candidate);
+            }
+        //System.out.println("Heuristic eval is: " + result);
+        
+        return result;    
+    }
     private static int pieces(int[][] candidate){//////simple heuristic that counts own pieces and enemy pieces
         int sumOwn=0;
         int sumEnemy=0;
@@ -53,10 +66,10 @@ public class Evaluator
                         sumEnemy++;
                         break;
                     case 3:
-                        sumOwn +=4;
+                        sumOwn +=2;
                         break;
                     case 4:
-                        sumEnemy +=4;
+                        sumEnemy +=2;
                         break;
                 }
                 
@@ -107,24 +120,5 @@ public class Evaluator
         }
         return sumOwn-sumEnemy;
     }
-    /**
-     * An example of a method - replace this comment with your own
-     *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
-     */
-    public static int evaluate(int[][] candidate, String heur){
-        int result = Integer.MIN_VALUE;
-        switch (heur) {
-            case P:  
-                    result= pieces(candidate);
-            case P_W:
-                    result= piecesWeighted(candidate);
-            case P_W_P: 
-                    result= piecesUltimate(candidate);
-            }
-        //System.out.println("Heuristic eval is: " + result);
-        
-        return result;    
-    }
+    
 }

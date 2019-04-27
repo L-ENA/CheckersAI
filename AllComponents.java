@@ -30,7 +30,7 @@ public class AllComponents extends JPanel
     private JComboBox level;
     private JComboBox heuristicBox;
     private JCheckBox mode;
-    
+    private JButton reStart;
     private JComboBox heuristic;
     
     private GridBagConstraints c;
@@ -229,6 +229,21 @@ public class AllComponents extends JPanel
         sidebar.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
         sidebar.add(pCount);
         
+        sidebar.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
+        reStart = new JButton("Restart the game");
+        reStart.setBorder(contentBorder);
+        reStart.setBackground(Color.LIGHT_GRAY);//Black By Default
+        reStart.setForeground(Color.BLACK);//Set as a Gray Colour
+        reStart.setAlignmentX(Component.CENTER_ALIGNMENT);
+        reStart.addMouseListener(new MouseAdapter()
+        {
+            @Override 
+           public void mousePressed(MouseEvent e) {
+               //System.out.println("mousePressed (update() )");
+               boardPane.triggerRestart();
+           }
+        });
+        sidebar.add(reStart);
         this.add(sidebar, c);
     }
     

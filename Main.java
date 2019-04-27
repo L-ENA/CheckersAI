@@ -40,6 +40,11 @@ public class Main
      */
     public Main()
     {
+        setUp(false);
+    }
+    protected void setUp(boolean restart){//doing all the setup. This is used in constructor or when re-starting the game
+        if(restart)
+            gui.killGui();//dispose of the main frame if restart is true
         gui = new Gui();
         guiBoard =  new Board(this);
         gui.componentPane.addBoardPane(guiBoard);
@@ -57,22 +62,22 @@ public class Main
         
         // myBoard = new int[][]{
         // {0,0,0,0,0,0,0,0},////multicatch
-        // {0,0,0,0,0,0,0,0},
+        // {1,0,0,0,0,0,0,0},
         // {0,2,0,0,0,0,0,2},
         // {2,0,0,0,1,0,0,0},
         // {0,1,0,1,0,0,0,2},
         // {0,0,0,0,1,0,0,0},
-        // {0,1,0,0,0,0,0,0},
-        // {0,0,0,0,0,0,3,0},
+        // {0,1,0,0,0,0,0,2},
+        // {0,0,0,0,0,0,0,0},
         
-        // };
+         // };
         
         // myBoard = new int[][]{
-        // {0,0,0,2,0,0,0,0},////multicatch
-        // {0,0,2,0,0,0,0,0},
+        // {0,3,0,4,0,0,0,0},////multicatch
         // {0,0,0,0,0,0,0,0},
-        // {0,0,0,0,2,0,0,0},
-        // {0,0,0,0,0,1,0,0},
+        // {0,0,0,0,0,0,0,0},
+        // {0,0,0,0,4,0,0,0},
+        // {0,0,0,0,0,0,0,0},
         // {0,0,0,0,0,0,0,0},
         // {0,0,0,0,0,0,0,0},
         // {0,0,0,0,0,0,0,0},
@@ -95,8 +100,6 @@ public class Main
         forced =false;
         visualiseState();
         updateAll();//using this state to update the gui
-        
-        
     }
     private void updateAI(){
         heuristic=gui.componentPane.heur;
@@ -106,7 +109,7 @@ public class Main
         System.out.println(heuristic);
         System.out.println(level);
         System.out.println();
-        ai=new Ai(level, heuristic, longJump);
+        ai=new Ai(level, heuristic, longJump, nrMoves);
     }
     private void newPly() {
         
@@ -132,14 +135,24 @@ public class Main
             nrMoves++;
             
         } else {
-            System.out.println("Game over, player won");
+            endGame("Congratulations, you won!", "Message to the winner");
         }
         if(!gameOver()){
             
             updateAll();
             System.out.println("updated all fields");
         }else {
-            System.out.println("Game over, AI won");
+            endGame("Do you want to try again?", "You lost!");
+        }
+    }
+    
+    private void endGame(String message, String title){
+        boolean ret = gui.exitMessage(message, title); 
+        if(ret == true){//restart game
+                
+                setUp(true);
+                } else{
+                    System.exit(0);//ending the game
         }
     }
     private void lostPiece(){
@@ -286,7 +299,7 @@ public class Main
                         jLeft=-1;
                     
                     }else if(myBoard[down][jLeft]==2||myBoard[down][jLeft]==3){//there is an enemy piece
-                            if(isFree(down + 1,pos.j-1)){//if place behind is free
+                            if(isFree(down + 1,jLeft-1)){//if place behind is free
                                 forcedPositions.add(new Position(down+1,jLeft-1));
                                 
                                 jLeft=-1;
@@ -530,6 +543,9 @@ public class Main
         this.iSource= i;
         this.jSource=j;
         this.currentLink=lnk;
+        guiBoard.deleteSource(i,j);
+        
+        
         updateState();
     }
     

@@ -22,19 +22,20 @@ public class Ai
     int[][] lastState;
     
     private boolean longJump;
-    private int maxDepth;
+    private int maxDepth, nrMoves;
     private int player;
     private String level;
     protected int deCount, seCount, pCount; // cost for dynamic & static evaluation; number of pruning operations
     /**
      * Constructor for objects of class Ai
      */
-    public Ai(String level, String heuristic, boolean longJump)
+    public Ai(String level, String heuristic, boolean longJump, int nrMoves)
     {
         // initialise instance variables
         this.level = level;
         this.heuristic = heuristic;
         this.longJump=longJump;
+        this.nrMoves=nrMoves;
         this.r = new Random();
         this.deCount=0;
         this.seCount=0;
@@ -59,20 +60,24 @@ public class Ai
             return randomMove();
             
           case "Novice":
-            System.out.println("Novice");
+            //System.out.println("Novice");
             return bestMove();
           case "Intermediate":
-            System.out.println("Intermediate");
+            //System.out.println("Intermediate");
             this.maxDepth = 2;
             return mmEvaluation();
           case "Professional":
+            if(nrMoves<2)//first 2 moves don't matter, can be just the best immediate moves
+              return bestMove();
             this.maxDepth = 6;
             return mmEvaluation();
           case "Ultimate Genius":
-          this.maxDepth = 10;
+            if(nrMoves<2)//first 2 moves don't matter, can be just the best immediate moves
+              return bestMove();
+          this.maxDepth = 8;
             return mmEvaluation();  
           default:
-            System.out.println("No level selected");
+            //System.out.println("No level selected");
             return randomMove();
         }
         
@@ -102,18 +107,25 @@ public class Ai
         int max = -10000;
         int best = -1;
         System.out.println(successorEvaluations.size() + " options");
-        // iterate over successors and return the one with the highest eval result
+        // iterate over successors and return the highest result
+        ArrayList<StateAndScores> bestSuccessors = new ArrayList();
         for (int i = 0; i < successorEvaluations.size(); ++i) { 
             if (max < successorEvaluations.get(i).score) {
                 max = successorEvaluations.get(i).score;
-                best = i;
                 
             }
-            //System.out.println("Option "+ i + " results in "+ successorEvaluations.get(i).score);
+            System.out.println("Option "+ i + " results in "+ successorEvaluations.get(i).score);
+            
         }
         //System.out.println("best score is "+ successorEvaluations.get(best).score);
         //printState(successorEvaluations.get(best).state);
-        return successorEvaluations.get(best).state;
+        for(StateAndScores bestScore:successorEvaluations){//getting the best successors and returning a random one of these
+            if(bestScore.score == max)
+                bestSuccessors.add(bestScore);
+        }
+        int index = r.nextInt(bestSuccessors.size());
+        return bestSuccessors.get(index).state;
+        
         
     }
     
@@ -280,18 +292,26 @@ public class Ai
         
     }
     
-    private void scoreForState(){
+    private void scoreForState(){//does heuristic evaluation on the available states and adds them to the score and state array
         for(int[][] state : statesAvailable){
             int score = Evaluator.evaluate(state, heuristic);
             successorEvaluations.add(new StateAndScores(score, state));
         }
     }
-    private boolean isValid( int[][] previous,  int[][] candidate){
-        int kOld=0;
-        int kNew=0;
+    
+    private boolean conversion(int[][] previous){//checks if there was a king conversion
+        for (int j = 0; j < 8; ++j) {
+            if(previous[7][j]==3)
+                return true;
+        }
+        return false;
+    }
+    
+    private boolean isValid( int[][] previous,  int[][] candidate){//checks if the move is a valid successor state
+        
             for (int i = 0; i < 8; ++i) {
                 for (int j = 0; j < 8; ++j) {
-                 //is the current position available in general?
+                 
                  if(candidate[i][j] ==6 && previous[i][j] ==6){
                     if(candidate[i-1][j-1]==5 && candidate[i+1][j+1]==5){
                         return true;
@@ -321,27 +341,30 @@ public class Ai
             this.forced= true;
             freePositions.add(candidates.get(i));
             previous = candidates.get(i);
-            ArrayList<int[][]> secondary = forcedMove(candidates.get(i));
-            if(secondary.size() > 0){
-                
-                ArrayList<int[][]> validated = new ArrayList<>();
-                
-                for(int[][] candidate : secondary){
-                    if(isValid(previous, candidate)){
-                        validated.add(candidate);
-                        candidates.add(candidate);
-                    }
+            if(!conversion(previous)){
+                ArrayList<int[][]> secondary = forcedMove(candidates.get(i));
+                if(secondary.size() > 0){
                     
-                    }
-                if(validated.size()>0){
-                    freePositions = new ArrayList<>();
-                    for(int[][] candidateV : validated){
-                        freePositions.add(candidateV);
+                    ArrayList<int[][]> validated = new ArrayList<>();
                     
-                    }
-                   }
-            
+                    for(int[][] candidate : secondary){
+                        if(isValid(previous, candidate)){
+                            validated.add(candidate);
+                            candidates.add(candidate);
+                        }
+                        
+                        }
+                    if(validated.size()>0){
+                        freePositions = new ArrayList<>();
+                        for(int[][] candidateV : validated){
+                            freePositions.add(candidateV);
+                        
+                        }
+                       }
+                
+                }
             }
+            
         }
         if(!this.forced){///there is no forced position
             for (int i = 0; i < 8; ++i) {
@@ -468,7 +491,7 @@ public class Ai
                 int jLeft = pos.j-1; 
                 int jRight = pos.j+1;
                 for(int i = pos.i-1; i>=0;i--){//up diagonal
-                    if(jLeft>0){
+                    if(jLeft>=0){
                         if(isFree(someState[i][jLeft])){
                             simpleMove(i, jLeft, pos, someState);
                             jLeft--;
@@ -476,7 +499,7 @@ public class Ai
                             jLeft=-1;
                         }
                     }
-                    if(jRight<7){
+                    if(jRight<=7){
                         if(isFree(someState[i][jRight])){    
                             simpleMove(i, jRight, pos, someState);
                             jRight++;
@@ -490,17 +513,19 @@ public class Ai
                 jLeft = pos.j-1; 
                 jRight = pos.j+1;
                 for(int i = pos.i+1; i<=7;i++){//down diagonal
-                    if(jLeft>0){
+                    if(jLeft>=0){
                         if(isFree(someState[i][jLeft])){
                             simpleMove(i, jLeft, pos, someState);
+                            System.out.println("King can move down left");
                             jLeft--;
                         }else {
                             jLeft=-1;
                         }
                     }    
-                    if(jRight<7){    
+                    if(jRight<=7){    
                         if(isFree(someState[i][jRight])){    
                             simpleMove(i, jRight, pos, someState);
+                            System.out.println("King can move down right");
                             jRight++;
                         }else {
                             jRight=8;
@@ -528,7 +553,7 @@ public class Ai
             int jLeft = pos.j-1; 
             int jRight = pos.j+1;
             for(int i = pos.i-1; i>=0;i--){//up diagonal
-                if(jLeft>0){
+                if(jLeft>=0){
                     if(isFree(someState[i][jLeft])){
                         simpleMove(i, jLeft, pos, someState);
                         jLeft--;
@@ -536,7 +561,7 @@ public class Ai
                         jLeft=-1;
                     }
                 }
-                if(jRight<7){
+                if(jRight<=7){
                     if(isFree(someState[i][jRight])){    
                         simpleMove(i, jRight, pos, someState);
                         jRight++;
@@ -550,7 +575,7 @@ public class Ai
             jLeft = pos.j-1; 
             jRight = pos.j+1;
             for(int i = pos.i+1; i<=7;i++){//down diagonal
-                if(jLeft>0){
+                if(jLeft>=0){
                     if(isFree(someState[i][jLeft])){
                         simpleMove(i, jLeft, pos, someState);
                         jLeft--;
@@ -558,7 +583,7 @@ public class Ai
                         jLeft=-1;
                     }
                 }    
-                if(jRight<7){    
+                if(jRight<=7){    
                     if(isFree(someState[i][jRight])){    
                         simpleMove(i, jRight, pos, someState);
                         jRight++;
@@ -641,6 +666,8 @@ public class Ai
                                 }
                                 jRight ++;
                             }
+                            if(!longJump)//not allowing more than 1 jump
+                                break;
                         }
                 
                         ///////////////////////down diagonal
@@ -675,6 +702,8 @@ public class Ai
                                    }
                                  jRight ++;
                                 }
+                        if(!longJump)//not allowing more than 1 jump
+                            break;    
                         }
                 
                     }
@@ -737,6 +766,8 @@ public class Ai
                             }
                             jRight ++;
                         }
+                        if(!longJump)//not allowing more than 1 jump
+                            break;
                     }
             
                     ///////////////////////down diagonal
@@ -771,6 +802,8 @@ public class Ai
                                }
                              jRight ++;
                             }
+                        if(!longJump)//not allowing more than 1 jump
+                            break;    
                     }
             
                 }
