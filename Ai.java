@@ -1,16 +1,10 @@
 import java.util.*;
 /**
- * Write a description of class Ai here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * AI is the opponent and it returns a new game state
  */
 public class Ai
 {
-    // instance variables - replace the example below with your own
-    
     protected int[][] state;
-    
     List<Position> availablePositions;
     List<StateAndScores> successorEvaluations;
     ArrayList<int[][]> statesAvailable;
@@ -43,54 +37,41 @@ public class Ai
     }
 
     /**
-     * An example of a method - replace this comment with your own
-     *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
+     * Returns a successor state to main. Chooses between different options to obtain the successor.
      */
     public int[][] getMove(int[][] myBoard)
     {
-        // put your code here
         this.state = myBoard;
         int[][]returnState;
         lastState = cloneState(myBoard);
         switch (level) {
-          case "Kindergarden":
-            System.out.println("Kindergarden");
+          case "Kindergarden"://just a random move
             return randomMove();
-            
-          case "Novice":
-            //System.out.println("Novice");
+          case "Novice"://the best move of all available successors
             return bestMove();
-          case "Intermediate":
-            //System.out.println("Intermediate");
+          case "Intermediate"://gets best minimax move with respect to maximal depth
             if(nrMoves<2)//first 2 moves don't matter, can be just the best immediate moves
               return bestMove();
             this.maxDepth = 2;
             return mmEvaluation();
-          case "Professional":
+          case "Professional"://gets best minimax move with respect to maximal depth
             if(nrMoves<2)//first 2 moves don't matter, can be just the best immediate moves
               return bestMove();
             this.maxDepth = 6;
             return mmEvaluation();
-          case "Ultimate Genius":
+          case "Ultimate Genius"://gets best minimax move with respect to maximal depth
             if(nrMoves<2)//first 2 moves don't matter, can be just the best immediate moves
               return bestMove();
-          this.maxDepth = 8;
+            this.maxDepth = 8;
             return mmEvaluation();  
           default:
-            //System.out.println("No level selected");
             return randomMove();
         }
-        
     }
     
-    
-    
-    private int[][] randomMove(){
+    private int[][] randomMove(){//use successor function to get successors, and choose a random move
         player=1;
         statesAvailable = getAvailableStates(state);
-        
         int index = r.nextInt(statesAvailable.size());
         return statesAvailable.get(index);
     }
@@ -102,17 +83,14 @@ public class Ai
     }
     
     private int[][] mmEvaluation(){
-        player=1;
+        player=1;//setting ai as starting player
         System.out.println("Calculating");
         /////////check if there is more than 1 move to start with. No minimax necessary if there is only 1 move
         List<int[][]> positionsAvailable = getAvailableStates(this.state);
         if(positionsAvailable.size() == 1){
-            
             System.out.println("there was only 1 option");
             return positionsAvailable.get(0);
         }
-            
-            
         minimaxEvaluation();//determine successors
         int max = -10000;
         int best = -1;

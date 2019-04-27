@@ -1,25 +1,12 @@
 
 /**
- * Write a description of class Evaluator here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * Evaluator performs heuristic evaluation for a given state. There is a choiice of 3 heuristics
  */
 public class Evaluator
 {
-    // instance variables - replace the example below with your own
     static final String P="Pieces";
     static final String P_W="Pieces + Weights";
     static final String P_W_P="Pieces + Weights + Positions";
-    
-    
-    
-    /**
-     * An example of a method - replace this comment with your own
-     *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
-     */
     public static int evaluate(int[][] candidate, String heur){
         int result = Integer.MIN_VALUE;
         switch (heur) {
@@ -30,8 +17,6 @@ public class Evaluator
             case P_W_P: 
                     result= piecesUltimate(candidate);
             }
-        //System.out.println("Heuristic eval is: " + result);
-        
         return result;    
     }
     private static int pieces(int[][] candidate){//////simple heuristic that counts own pieces and enemy pieces
@@ -62,14 +47,13 @@ public class Evaluator
                         sumOwn++;
                         break;
                     case 1:
-                    
                         sumEnemy++;
                         break;
                     case 3:
-                        sumOwn +=2;
+                        sumOwn +=3;
                         break;
                     case 4:
-                        sumEnemy +=2;
+                        sumEnemy +=3;
                         break;
                 }
                 
@@ -107,18 +91,16 @@ public class Evaluator
                         }
                         break;
                     case 3:
-                        sumOwn +=5;
+                        sumOwn +=6;
                         
                         break;
                     case 4:
-                        sumEnemy +=5;
+                        sumEnemy +=6;
                         //System.out.println("white king");
                         break;
                 }
-                
             }
         }
         return sumOwn-sumEnemy;
     }
-    
 }

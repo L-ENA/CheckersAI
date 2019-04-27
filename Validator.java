@@ -1,31 +1,22 @@
 import java.util.*;
 import java.lang.Math;
 /**
- * Write a description of class Validator here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * Validator is a helper class for board. It is responsible for allowing or refusing drops.
  */
 public class Validator
 {
-    // variables used to update the state. these are the coordinates of successful source-destination moves
-    
     private boolean dontUpdate;
     ////////coordinates for attempts to move
     public ArrayList<Integer> lastClicked;
     public int iDropped;
     private int jDropped;
-    
     /////////////////contains all acceptable positions that the player could legally carry out
     private HashMap<ArrayList<Integer>, ArrayList<Position>> validatingPositions;
-    
     ///////coordinate of opponent, if it was eliminated
     private int enemyI;
     private int enemyJ;
     private boolean hit;//caught an enemy!!!
     private boolean isKing;
-    
-    
     /**
      * Constructor for objects of class Validator
      */
@@ -48,9 +39,6 @@ public class Validator
             return null;
         }
     }
-    
-    
-    
     public void setClicked(int i, int j){
         lastClicked = new ArrayList<Integer>();
         lastClicked.add(i);
@@ -71,23 +59,9 @@ public class Validator
     public boolean validateDrop(){///check if the last clicked source field is a key in the positions map
         //System.out.println("ValidateDrop() validator");
         try{
-            //System.out.println("LC: " + lastClicked.get(0) + lastClicked.get(1));
-            
-                
-            //System.out.println(validatingPositions.size());
-            //if(lastClicked.get(0)==iDropped){
-               // System.out.println("Droplast");
-                //return false;
-                
-            //}
-            
             ArrayList<Position> allowedDrops = validatingPositions.get(lastClicked);
-            
             for (Position pos : allowedDrops ){//check if last drop is an entry in the list we fetched
-                //System.out.println("try pos " + pos.i+pos.j);
-                //System.out.println("Allowed drop " + pos.i+ " " + pos.j);
                 if(lastClicked.get(0)==iDropped && lastClicked.get(1)==jDropped){
-                    System.out.println("falseeeeeeeeeeeeeeeeeeeeeeeeeeee");
                     return false;
                 }
                     if(pos.i == iDropped && pos.j == jDropped){
@@ -95,8 +69,6 @@ public class Validator
                     dontUpdate=false;
                     return true;
                 }
-                
-                
             }
             } catch(Exception e){//the map was empty at that key
                 System.out.println("caught");
@@ -132,21 +104,16 @@ public class Validator
                 this.enemyJ = jDropped +1;
                 
             }
-            //System.out.println("enemy at " + this.enemyI + " " + this.enemyJ);
             return true;
         } else if (Math.abs(iDiff)>1){///////////////the checkers has moved 2 places, so there was a normal hit and we need to determine the coordinates of the hit piece
             iDiff = iDiff/2;
             this.enemyI = iDropped-iDiff;
             int jDiff= (jDropped - lastClicked.get(1))/2;
             this.enemyJ = jDropped-jDiff;
-            //System.out.println("Hit me at " + enemyI+enemyJ);
             return true;
         } else{
             return false;
         }
-        
-        
-        
     }
     
     public boolean getDontUpdate(){

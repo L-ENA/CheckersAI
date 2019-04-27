@@ -1,9 +1,5 @@
 import java.util.*;
-/**
- * Write a description of class Position here.
- *
- * @author (your name)
- * @version (a version number or a date)
+/**A position, used in main to deal with indexing of the board
  */
 class Position implements Cloneable{
     int i, j;
@@ -11,11 +7,7 @@ class Position implements Cloneable{
         this.i = i;
         this.j = j;
     }
-    @Override
-    public String toString() {
-        return "(" + (i) + "," + (j) + ")";
-    }
-    public ArrayList<Integer> toAList(){
+    public ArrayList<Integer> toAList(){//to automatically make array list from position obj
         ArrayList<Integer> ret = new ArrayList<Integer>();
         ret.add(this.i);
         ret.add(this.j);
@@ -35,14 +27,11 @@ class Position implements Cloneable{
        return clone;
     }
 }
-
-class StateAndScores {
+class StateAndScores {//for evaluating successor state in minimax
     int score;
     int[][] state;
     StateAndScores(int score, int[][] state) {
         this.score = score;
         this.state = state;
     }
-    
-    
 }

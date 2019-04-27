@@ -7,29 +7,22 @@ import java.awt.image.*;
 import java.io.*;
 import java.awt.event.*;
 /**
- * Write a description of class Field here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * Field represents a jlabel in the gui: a paert of the board
  */
 public class Field extends JLabel
 {
-    // instance variables - replace the example below with your own
     protected int i;
     protected int j;
     protected int[] index;
     protected boolean black;//black is true
     final int DIMENSION = 15;
     protected String link;
-    
-
     protected String type = "";
     /**
      * Constructor for objects of class Field
      */
     public Field(int[] index, boolean black)
     {
-        
         this.i=index[0];
         this.j=index[1];
         this.index= index;
@@ -46,12 +39,9 @@ public class Field extends JLabel
         TitledBorder tb = new TitledBorder(null, "(" + index[0]+ ", "+ index[1] +")", TitledBorder.LEFT,TitledBorder.ABOVE_BOTTOM);
         tb.setTitleColor(Color.gray);
         this.setBorder(tb);
-        
-        
-        
     }
     
-    public Field(){}
+    public Field(){}//empty constructor used in board
     
     public Field(int[] index, String link){
         this.i=index[0];
@@ -77,16 +67,8 @@ public class Field extends JLabel
         this.setIcon(new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(70, 70, 4)));
         this.link=path;
     }
-
-    /**
-     * An example of a method - replace this comment with your own
-     *
-     * @param  y  a sample parameter for a method
-     * @return    the sum of x and y
-     */
     public int[] getIndex()
     {
-        // put your code here
         return index;
     }
     
