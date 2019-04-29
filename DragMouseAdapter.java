@@ -1,36 +1,19 @@
-import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.TransferHandler;
 import java.util.*;
 /**
- * Write a description of class DragMouseAdapter here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * The mouse adapter used for transfering data
  */
 class DragMouseAdapter extends MouseAdapter {
    ArrayList<Integer> pos; 
    private String link;
    public DragMouseAdapter(ArrayList<Integer> pos, String link){
-       
        super(); 
-       //System.out.println("staaaart7");
        this.pos=pos;
        this.link=link;
    }
    
    public DragMouseAdapter(){
-       
        super();
-       //System.out.println("staaaart8");
    }
   
 }

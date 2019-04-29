@@ -186,7 +186,6 @@ public class AllComponents extends JPanel
             @Override 
            public void mousePressed(MouseEvent e) {
                //System.out.println("mousePressed (update() )");
-               System.out.println("Press meeeeeee");
                boardPane.showOptions();
            }
         });

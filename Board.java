@@ -3,12 +3,10 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.*;
-import java.util.Set;
 import java.awt.event.MouseListener;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 /**
  * Board is the jpanel that displays the checkers board
  */
@@ -18,7 +16,7 @@ public class Board extends JPanel
     int width = 8;
     Validator val = new Validator();//checks if drag and drops are valid moves
     LinkedHashMap<ArrayList<Integer>, Field> squares = new LinkedHashMap<ArrayList<Integer>, Field>();
-    Main game;
+    Main game;//link back to the main class for updating it
     int humanMoves;
     /**
      * Constructor for objects of class Board
@@ -40,11 +38,9 @@ public class Board extends JPanel
         visualise();
         this.game=game;
     }
-    
     protected void addValidationMap(HashMap<ArrayList<Integer>, ArrayList<Position>> validatingPositions){
         val.updateHashMap(validatingPositions);//add the map that allows val to validate moves
     }
-    
     protected void visualise(){////visualising board according to the current gui state
         this.removeAll();
         this.setLayout(new GridLayout(8,8));  
@@ -58,13 +54,13 @@ public class Board extends JPanel
         this.setVisible(true);
     }
     protected void showOptions(){//highlight one possible destination
-        int[] ind = val.getIndex();
+        int[] ind = val.getIndex();//get destination from the validator
         Field f = new Field();
         for (Component c : this.getComponents()){
            if (c instanceof Field){
                 f = (Field) c;
-                if(f.i==ind[0] && f.j==ind[1]){
-                    f.setIC("empty.png");
+                if(f.i==ind[0] && f.j==ind[1]){//if we reached the desired field
+                    f.setIC("empty.png");//set the spiral icon and stop searching
                     break;
                 }
             }
@@ -74,7 +70,6 @@ public class Board extends JPanel
         this.repaint();
         this.setVisible(true);
     }
-    
     private void deleteTrails(){//gets rid of the crossed out stones and feet icons
         for (Component c : this.getComponents()){
             if (c instanceof Field){
@@ -154,15 +149,16 @@ public class Board extends JPanel
                             if(val.iDropped!=8){
                                 System.out.println("update");
                                 Field f= (Field) source;
+                                val.iDropped=8;//to verift that the value has changed when updating it next
+                                System.out.println("UPDATED CURRENT MOVE");
                                 game.setSource(f.i, f.j, f.link);//updating the current source
                             } else{
                                 System.out.println("no update");
+                                val.iDropped=8;//to verift that the value has changed when updating it next
+                                System.out.println("UPDATED CURRENT MOVE");
                             }
-                            val.iDropped=8;//to verift that the value has changed when updating it next
-                            System.out.println("UPDATED CURRENT MOVE");
                         }
                     }
-                    
                 }
          });
          squares.put(indexNew, f);

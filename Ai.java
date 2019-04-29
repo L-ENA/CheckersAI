@@ -60,8 +60,8 @@ public class Ai
             this.maxDepth = 6;
             return mmEvaluation();
           case "Ultimate Genius"://gets best minimax move with respect to maximal depth
-            if(nrMoves<2)//first 2 moves don't matter, can be just the best immediate moves
-              return bestMove();
+            //if(nrMoves<2)//first 2 moves don't matter, can be just the best immediate moves
+              //return bestMove();
             this.maxDepth = 8;
             return mmEvaluation();  
           default:
@@ -95,7 +95,7 @@ public class Ai
         int max = -10000;
         int best = -1;
         System.out.println(successorEvaluations.size() + " options");
-        // iterate over successors and return the highest result
+        // iterate over successors and return the highest result. for equal results return best immediate value.
         ArrayList<StateAndScores> bestSuccessors = new ArrayList();
         for (int i = 0; i < successorEvaluations.size(); ++i) { 
             if (max < successorEvaluations.get(i).score) {
@@ -103,19 +103,22 @@ public class Ai
                 
             }
             System.out.println("Option "+ i + " results in "+ successorEvaluations.get(i).score);
-            
         }
         //System.out.println("best score is "+ successorEvaluations.get(best).score);
         //printState(successorEvaluations.get(best).state);
+        int bestState=-1000;//heuristic evaluation of available states
+        int[][] ret = new int[0][0];//the return value
         for(StateAndScores bestScore:successorEvaluations){//getting the best successors and returning a random one of these
-            if(bestScore.score == max)
-                bestSuccessors.add(bestScore);
+            if(bestScore.score == max){//taking only the successors  that lead to the best result
+                int score = Evaluator.evaluate(bestScore.state, heuristic); //take heuristic score of immediate successor
+                if(score >= bestState){
+                    bestState=score;
+                    ret = bestScore.state;
+                }
+            }
         }
-        int index = r.nextInt(bestSuccessors.size());
-        System.out.println("Using one that returns "+ bestSuccessors.get(index).score);
-        return bestSuccessors.get(index).state;
-        
-        
+        //int index = r.nextInt(bestSuccessors.size());
+        return ret;
     }
     
     private void minimaxEvaluation(){

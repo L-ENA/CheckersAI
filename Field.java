@@ -23,7 +23,7 @@ public class Field extends JLabel
      */
     public Field(int[] index, boolean black)
     {
-        this.i=index[0];
+        this.i=index[0];//the field's location
         this.j=index[1];
         this.index= index;
         this.black=black;
@@ -34,7 +34,6 @@ public class Field extends JLabel
         } else {
             this.setBackground(Color.WHITE);
         }
-        
         Border border = BorderFactory.createLineBorder(Color.RED, 2);
         TitledBorder tb = new TitledBorder(null, "(" + index[0]+ ", "+ index[1] +")", TitledBorder.LEFT,TitledBorder.ABOVE_BOTTOM);
         tb.setTitleColor(Color.gray);
@@ -55,7 +54,6 @@ public class Field extends JLabel
         } else {
             this.setBackground(Color.WHITE);
         }
-        
         Border border = BorderFactory.createLineBorder(Color.RED, 2);
         TitledBorder tb = new TitledBorder(null, "(" + index[0]+ ", "+ index[1] +")", TitledBorder.LEFT,TitledBorder.ABOVE_BOTTOM);
         tb.setTitleColor(Color.gray);
@@ -63,21 +61,17 @@ public class Field extends JLabel
         setIC(link);
     }
     
-    public void setIC(String path){
+    public void setIC(String path){//change the image associated with the field
         this.setIcon(new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(70, 70, 4)));
         this.link=path;
     }
-    public int[] getIndex()
-    {
+    public int[] getIndex(){
         return index;
     }
-    
-    public boolean compare(int[] ind)
-    {
+    public boolean compare(int[] ind){
         if(this.index[0] == ind[0] && this.index[1] == ind[1])
             return true;
         else
             return false;
     }
-    
 }
