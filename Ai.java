@@ -67,7 +67,7 @@ public class Ai
             return randomMove();
         }
     }
-    private void predict(){
+    private void predict(){///helper to test if ai simulates user moves corectly
         this.player = 2;
         statesAvailable = getAvailableStates(state);
     }
@@ -95,9 +95,8 @@ public class Ai
         }
         minimaxEvaluation();//determine successors
         int max = -10000;
-        int best = -1;
         System.out.println(successorEvaluations.size() + " options");
-        // iterate over successors and return the highest result. for equal results return best immediate value.
+        // iterate over successors and find the maximal value
         ArrayList<StateAndScores> bestSuccessors = new ArrayList();
         for (int i = 0; i < successorEvaluations.size(); ++i) { 
             if (max < successorEvaluations.get(i).score) {
@@ -105,19 +104,36 @@ public class Ai
             }
             System.out.println("Option "+ i + " results in "+ successorEvaluations.get(i).score);
         }
-        int bestState=-1000;//heuristic evaluation of available states
-        int[][] ret = new int[0][0];//the return value
-        for(StateAndScores bestScore:successorEvaluations){//getting the best successors
+        
+        for(StateAndScores bestScore:successorEvaluations){//getting the best immediate successor score
             if(bestScore.score == max){//taking only the successors  that lead to the best result
                 int score = Evaluator.evaluate(bestScore.state, heuristic); //take heuristic score of immediate successor
-                if(bestState < score){
-                    bestState=score;
-                    ret = bestScore.state;
-                    System.out.println("Took one that results in " + bestScore.score);
-                }
+                bestSuccessors.add(new StateAndScores(score, bestScore.state));
+                System.out.println("Scores of " + max);
+            } else {
+                System.out.println("Scores of non max:" + bestScore.score);
             }
         }
-        return ret;
+        
+        max = -10000;
+        
+        for(int i=0; i<bestSuccessors.size(); i++){//determine the maximal score of the direct successors
+            if(bestSuccessors.get(i).score >= max){
+                max= bestSuccessors.get(i).score;
+            }
+        }
+        ArrayList<int[][]> bestStates = new ArrayList<int[][]>();
+        for(StateAndScores candidate : bestSuccessors){//filter out the states that meet the max score
+            if(candidate.score==max){
+                bestStates.add(candidate.state);
+                System.out.println("immediate of " + max);
+            } else {
+                System.out.println("This immediate scored" + candidate.score);
+            }
+        }
+        int index = r.nextInt(bestStates.size());//choose random best state if there is more than 1
+        this.state = bestStates.get(index);
+        return bestStates.get(index);
     }
     
     private void minimaxEvaluation(){
@@ -233,7 +249,6 @@ public class Ai
         }
         int index = r.nextInt(bestStates.size());//choose random best state if there is more than 1
         this.state = bestStates.get(index);
-        predict();
         return bestStates.get(index);
     }
     private void startEvaluation(){//evaluation for best immediate state
@@ -379,32 +394,23 @@ public class Ai
         
     }
     private int[][] captureMove(int iNew,int jNew,Position pos, int[][] someState){//moving and updating the candidate state
+        int ix = iNew+pos.i;
+        int jx = jNew+pos.j;
         int[][] stateCopy = cloneState(someState);
         stateCopy[pos.i+iNew][pos.j+jNew]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
         stateCopy[pos.i+(iNew/2)][pos.j+(jNew/2)]=6;//an enemy was eliminated in the middle
         stateCopy = checkKingConversion(stateCopy, pos.i+iNew, pos.j+jNew);//see if this move led to a king
-        int ix = iNew+pos.i;
-        int jx = jNew+pos.j;
-        if(player==2)
-            System.out.println(pos.i + ", " + pos.j + " can capture to " + ix + ", " + jx);
-        if(player==2)
-            System.out.println("iadded is " + iNew + "jadded is " + jNew);    
         return stateCopy;
     }
     
     private int[][] captureDiagonal(int i, int iAdded, int j, int jAdded,Position pos, int[][] someState){
+        int ix = iAdded+i;
+        int jx = jAdded+j;
         int[][] stateCopy = cloneState(someState);
         stateCopy[i+ iAdded][j+ jAdded]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
         stateCopy[i][j]=6;//an enemy was eliminated
-        int ix = iAdded+pos.i;
-        int jx = jAdded+pos.j;
-        if(player==2)
-            System.out.println("iadded is " + iAdded + "jadded is " + jAdded);
-        if(player==2)
-            System.out.println(pos.i + ", " + pos.j + " can move diag to " + ix + ", " + jx);
-            
         return stateCopy;//add this prospective state
     }
     private void generalMove(Position pos, int[][] someState){
@@ -719,7 +725,7 @@ public class Ai
                             if(someState[i2][jRight]==1 || someState[i2][jRight]==4){
                                 jRight = 8;
                             } 
-                            else if(isEnemy(someState[i2][jRight])){//there is an enemy piece
+                            else if(isEnemyW(someState[i2][jRight])){//there is an enemy piece
                                 if(isFree(someState[i2+1][jRight+1])){//there is an empty place behind it
                                     forcedPositions.add(captureDiagonal(i2, 1, jRight, 1,pos, someState));
                                     jRight = 8;
