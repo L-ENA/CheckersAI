@@ -7,6 +7,7 @@ public class Evaluator
     static final String P="Pieces";
     static final String P_W="Pieces + Weights";
     static final String P_W_P="Pieces + Weights + Positions";
+    static final String D="Distance";
     public static int evaluate(int[][] candidate, String heur){
         int result = Integer.MIN_VALUE;
         switch (heur) {

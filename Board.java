@@ -89,7 +89,10 @@ public class Board extends JPanel
         f.setIC(link);
         squares.put(indexNew, f);
     }
-    public void addTransfer(ArrayList<Integer> indexNew){//update a single field with transfer handlers etc
+    public void addTransfer(ArrayList<Integer> indexNew, boolean deleteTrails){//update a single field with transfer handlers etc
+        if(deleteTrails){
+            deleteTrails();
+        }
         Field f = squares.get(indexNew);//get the corresponding field
         f.setTransferHandler(new TransferHandler("icon"){
           /////////enable moving instead of copying

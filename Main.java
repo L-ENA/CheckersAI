@@ -40,28 +40,29 @@ public class Main
         gui = new Gui();
         guiBoard =  new Board(this);
         gui.componentPane.addBoardPane(guiBoard);
-        // myBoard = new int[][]{
-        // {0,2,0,2,0,2,0,2},////multicatch
-        // {2,0,2,0,2,0,2,0},
-        // {0,2,0,2,0,2,0,2},
-        // {0,0,0,0,0,0,0,0},
-        // {0,0,0,0,0,0,0,0},
-        // {1,0,1,0,1,0,1,0},
-        // {0,1,0,1,0,1,0,1},
-        // {1,0,1,0,1,0,1,0},
-        
-        // };//creating internal state
         myBoard = new int[][]{
-        {0,2,0,0,0,4,0,2},////multicatch
+        {0,2,0,2,0,2,0,2},
+        {2,0,2,0,2,0,2,0},
+        {0,2,0,2,0,2,0,2},
         {0,0,0,0,0,0,0,0},
-        {0,0,0,4,0,1,0,0},
-        {0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0},
-        {1,0,2,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,2,0,0},
+        {1,0,1,0,1,0,1,0},
+        {0,1,0,1,0,1,0,1},
         {1,0,1,0,1,0,1,0},
         
         };//creating internal state
+        // myBoard = new int[][]{
+        // {0,2,0,0,0,4,0,2},////multicatch
+        // {0,0,0,0,0,0,0,0},
+        // {0,0,0,4,0,1,0,0},
+        // {0,0,0,0,0,0,0,0},
+        // {0,0,0,0,0,0,0,0},
+        // {1,0,2,0,0,0,0,0},
+        // {0,0,0,0,0,0,0,0},
+        // {1,0,1,0,1,0,1,0},
+        
+        // };//creating internal state
+        
         //////////////variables for settings and stats
         nrMoves=1;
         plLoss=0;
@@ -123,7 +124,7 @@ public class Main
                    aiLoss++;
                    forced=true;//from now on, only states that lead to kicking out an enemy will be updated with the action listeners in gui
                    for(Position pos: forcedPositions){
-                       gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
+                       gui.componentPane.boardPane.addTransfer(pos.toAList(), false);//delivers target as array list, because the GUI likes arrayLists more
                        //System.out.println("FPOS: can drop to " + pos.i + " " + pos.j);
                     }
                     //adding the forced positions and the candidate fields to the hashmap, this is used by the validator in the GUI to terminate illegal moves
@@ -138,7 +139,7 @@ public class Main
                 if(candidates.size()>0){//updating gui with listeners
                    gui.componentPane.boardPane.update(toList(i,j), OCCUPY.mapStatus(myBoard[i][j]));
                    for(Position pos: candidates){
-                       gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
+                       gui.componentPane.boardPane.addTransfer(pos.toAList(), false);//delivers target as array list, because the GUI likes arrayLists more
                    }
                    //adding the forced positions and the candidate fields to the hashmap
                    validatingPositions.put(toList(i,j), copyPositions(candidates));
@@ -189,7 +190,7 @@ public class Main
            gui.componentPane.boardPane.update(toList(iDest,jDest), OCCUPY.mapStatus(myBoard[iDest][jDest]));
            //from now on, only states that lead to kicking out an enemy will be updated with the action listeners in gui
            for(Position pos: forcedPositions){
-               gui.componentPane.boardPane.addTransfer(pos.toAList());//delivers target as array list, because the GUI likes arrayLists more
+               gui.componentPane.boardPane.addTransfer(pos.toAList(), true);//delivers target as array list, because the GUI likes arrayLists more
                //System.out.println("FPOS: can drop to " + pos.i + " " + pos.j);
             }
             //adding the forced positions and the candidate fields to the hashmap, this is used by the validator in the GUI to terminate illegal moves
