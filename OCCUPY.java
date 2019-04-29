@@ -1,30 +1,21 @@
-
 /**
- * Enumeration class OCCUPY - write a description of the enum class here
- *
- * @author (your name here)
- * @version (version number or date here)
+ * Enumeration class OCCUPY - maps pictures to links
  */
 public enum OCCUPY
 {
     FREE("",0), WHITE("whiteNorm.png",1), BLACK("blackNorm.png",2), BK("blackKing.png",3), WK("whiteKing.png",4), FEET("feet.png", 5), KICK("kick.png", 6);
-    
     private final String description;
     private final int status;
-    
     public String getLink() {///access to link
         return description;
     }
-    
     public int getStatus() {///access to link
         return status;
     }
-
     private OCCUPY(String description, int status) {
         this.description = description;
         this.status=status;
     }
-    
     public static int mapString(String link){
         switch(link) 
         { 
@@ -44,7 +35,6 @@ public enum OCCUPY
                 return 0; 
         } 
     }
-    
     public static String mapStatus(int status){
         switch(status) 
         { 

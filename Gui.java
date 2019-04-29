@@ -1,21 +1,15 @@
 import javax.swing.*;
 import java.util.*;
 /**
- * Write a description of class Gui here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * Class to contain components and menubar.
  */
 public class Gui
 {
-     private JFrame mainFrame;
-     private MyMenuBar menuBar; 
-     protected AllComponents componentPane;
-     
-     //private piece aPiece;
-     
+    private JFrame mainFrame;
+    private MyMenuBar menuBar; 
+    protected AllComponents componentPane;
     /**
-     * Constructor for objects of class Gui
+     * Constructor for objects of class Gui, creates and sets further elements such as menu bar and board instance
      */
     public Gui()
     {
@@ -27,21 +21,9 @@ public class Gui
         mainFrame.setJMenuBar(menuBar);
         mainFrame.pack();//to finalise changes and visualise them
         mainFrame.setVisible(true);
-        
-        
     }
 
-    
-    
-    //public void updateComp(ArrayList<Node> initState){
-        //componentPane.updateBoard(initState);
-    //}
-    
-    
-    
-    
-    protected boolean exitMessage(String message, String title){
-        
+    protected boolean exitMessage(String message, String title){//called when game is over, gives option to restart
         String[] options = {"Play again","Exit"};
         int choice = JOptionPane.showOptionDialog(mainFrame, //Component parentComponent
                message, //Object message,
@@ -52,20 +34,12 @@ public class Gui
                options,
                options[1]);
         if(choice == 0 ){
-           //logger.info("Player restarted the game");
            return true;
          }else{
-           //logger.info("Player quit the game");
            return false;//not gonna get executed
          }
-        }
-        
-    /**
-     * The player wants to play again, therefore the current main frame is terminated.
-     * @param  none
-     * @return    void
-     */
-    protected void killGui(){
+    }
+    protected void killGui(){//for restarting: disposes of current gui
         mainFrame.dispose();
-}    
+    }    
 }

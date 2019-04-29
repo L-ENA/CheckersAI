@@ -9,15 +9,12 @@ import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.*;
 /**
- * Write a description of class AllComponents here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * GUI class that contains the main visible elements; board and sideboard. While board is controlled in the board class, this class here is responsible for the sideboard options panel. 
+ * 
  */
 public class AllComponents extends JPanel
 {
-    // instance variables - replace the example below with your own
-    protected Board boardPane;
+    protected Board boardPane;//all gui elements
     private JPanel sidebar;
     private JPanel settings;
     private JLabel nrLabel;
@@ -32,7 +29,6 @@ public class AllComponents extends JPanel
     private JCheckBox mode;
     private JButton reStart;
     private JComboBox heuristic;
-    
     private GridBagConstraints c;
     
     private static final int wide = 1000;
@@ -51,7 +47,6 @@ public class AllComponents extends JPanel
      */
     public AllComponents()
     {
-        // initialise instance variables
         super(new GridBagLayout());
         c = new GridBagConstraints();//to manage layout
         c.fill = GridBagConstraints.BOTH;//stretch both horizontally and vertically
@@ -60,109 +55,29 @@ public class AllComponents extends JPanel
         c.gridx = 0;//grid coordinates where the panel will sit
         c.gridy = 0;
         c.anchor = GridBagConstraints.FIRST_LINE_START;//if window is resized
-        
         contentBorder = new BevelBorder(BevelBorder.RAISED, Color.GREEN, Color.BLACK);//border for all content
         standardBorder = new LineBorder(Color.GREEN);//Customizes the line colour for the following TitledBorder instances
-        //this.setSize(getPreferredSize());
         selectedLevel = "Intermediate";
         longJumps=false;
         heur= "Pieces + Weights + Positions";
     }
     
-    public void addBoardPane(Board p){
+    public void addBoardPane(Board p){//creates and adds the checkers board on the left, as the big component
         this.boardPane=p;
         this.add(boardPane, c);
         addSidebar();
     }
 
-    private void addSettings(){
-        
-        settings = new JPanel();
-        settings.setLayout(new BoxLayout(settings, BoxLayout.Y_AXIS));//here, a box layout makes sense to display labels below each other
-        settings.setBackground(Color.white);
-        settings.setBorder(new TitledBorder(contentBorder, "Settings"));//uses the border customized before and adds a title
-    
-        String[] difLevels = { "Kindergarden", "Novice", "Intermediate", "Professional", "Ultimate Genius" };
-        level = new JComboBox(difLevels){
-            @Override
-            public Dimension getMaximumSize() {
-                Dimension max = super.getMaximumSize();
-                max.height = getPreferredSize().height;
-                return max;
-            }
-        
-        };
-        level.setRenderer(new MyComboBoxRenderer("Difficulty"));
-        level.setSelectedIndex(-1);
-        
-        level.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JComboBox cb = (JComboBox)e.getSource();
-                selectedLevel = (String)cb.getSelectedItem();
-                System.out.println("a change!");
-            }
-    
-        });
-        
-        String[] heuristics = { "Pieces", "Pieces + Weights", "Pieces + Weights + Positions"};
-        heuristicBox = new JComboBox(heuristics){
-            @Override
-            public Dimension getMaximumSize() {
-                Dimension max = super.getMaximumSize();
-                max.height = getPreferredSize().height;
-                return max;
-            }
-        
-        };
-        heuristicBox.setRenderer(new MyComboBoxRenderer("Heuristic"));
-        heuristicBox.setSelectedIndex(-1);
-        heuristicBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JComboBox cb = (JComboBox)e.getSource();
-                heur = (String)cb.getSelectedItem();
-            }
-    
-        });
-        
-        mode = new JCheckBox("Long King Jumps");
-        mode.setSelected(false);
-        mode.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-            if(mode.isSelected()){
-                longJumps=true;
-            } else {
-                longJumps=false;
-            }
-          }
-        });
-        settings.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
-        
-        settings.add(level);
-        settings.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
-        settings.add(heuristicBox);
-        settings.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
-        
-        settings.add(mode);
-        settings.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
-        
-        sidebar.add(settings);
-    }
-    
-    private void addSidebar(){
+    private void addSidebar(){//adding the settings panel
         c.weightx = 0.1;
         c.gridx = 1;
         c.gridy = 0;
         c.anchor = GridBagConstraints.PAGE_START;
-
         sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));//here, a box layout makes sense to display labels below each other
         sidebar.setAlignmentX(Component.CENTER_ALIGNMENT);
         sidebar.setBackground(Color.white);
         sidebar.setBorder(new TitledBorder(standardBorder, "Information"));//uses the border customized before and adds a title
-        
         
         nrLabel = new JLabel("Number of moves: 0 ");/////label displaying game stats
         nrLabel.setBorder(contentBorder);
@@ -245,10 +160,77 @@ public class AllComponents extends JPanel
         sidebar.add(reStart);
         this.add(sidebar, c);
     }
-    
-    
+    private void addSettings(){//adding the options of the settings panel
+        settings = new JPanel();
+        settings.setLayout(new BoxLayout(settings, BoxLayout.Y_AXIS));//here, a box layout makes sense to display labels below each other
+        settings.setBackground(Color.white);
+        settings.setBorder(new TitledBorder(contentBorder, "Settings"));//uses the border customized before and adds a title
+        String[] difLevels = { "Kindergarden", "Novice", "Intermediate", "Professional", "Ultimate Genius" };
+        level = new JComboBox(difLevels){
+            @Override
+            public Dimension getMaximumSize() {
+                Dimension max = super.getMaximumSize();
+                max.height = getPreferredSize().height;
+                return max;
+            }
+        
+        };
+        level.setRenderer(new MyComboBoxRenderer("Difficulty"));//for title string of the combo box
+        level.setSelectedIndex(-1);
+        
+        level.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox)e.getSource();
+                selectedLevel = (String)cb.getSelectedItem();
+                System.out.println("Difficulty was changed");
+            }
+        });
+        
+        String[] heuristics = { "Pieces", "Pieces + Weights", "Pieces + Weights + Positions"};
+        heuristicBox = new JComboBox(heuristics){
+            @Override
+            public Dimension getMaximumSize() {
+                Dimension max = super.getMaximumSize();
+                max.height = getPreferredSize().height;
+                return max;
+            }
+        };
+        heuristicBox.setRenderer(new MyComboBoxRenderer("Heuristic"));
+        heuristicBox.setSelectedIndex(-1);
+        heuristicBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox)e.getSource();
+                heur = (String)cb.getSelectedItem();
+                System.out.println("Heuristic was changed");
+            }
+        });
+        
+        mode = new JCheckBox("Long King Jumps");
+        mode.setSelected(false);
+        mode.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+            if(mode.isSelected()){
+                longJumps=true;
+            } else {
+                longJumps=false;
+            }
+          }
+        });
+        settings.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
+        settings.add(level);//adding all gui components initialised above
+        settings.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
+        settings.add(heuristicBox);
+        settings.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
+        settings.add(mode);
+        settings.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
+        sidebar.add(settings);
+    }
     
     public void updateSidebar(int nrLab, int plLoss, int aiLoss,  int seC, int deC, int pC){
+         //function to update this part of the gui with stats on pruning, game progress etx
          nrLabel.setText("Number of moves: "+Integer.toString(nrLab));
          playerLossLabel.setText("Player loss: "+Integer.toString(plLoss));
          aiLossLabel.setText("AI loss: "+Integer.toString(aiLoss));
@@ -259,29 +241,20 @@ public class AllComponents extends JPanel
          sidebar.revalidate();
          sidebar.repaint();
     }
-    
-    
-    /**
-     * Overriding the preferred size method.
-     * @param  none
-     * @return    void
-     */
     @Override
-    public Dimension getPreferredSize() {
+    public Dimension getPreferredSize() {//Overriding the preferred size method to get a properly sized window at startup
        return new Dimension(wide, high);
     }
 }
 
 class MyComboBoxRenderer extends JLabel implements ListCellRenderer {
-        private String title;
-
+        private String title;//getting pretty and descriptive titles for comboboxes before they are used for first time
         public MyComboBoxRenderer(String newTitle) {
             title = newTitle;
         }
-
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean hasFocus) {
-            if (index == -1 && value == null) setText(title );
+            if (index == -1 && value == null) setText(title );//just at the beginning when index is -1, combobox displays nice title
             else setText(value.toString());
             return this;
         }
