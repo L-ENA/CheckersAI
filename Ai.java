@@ -101,19 +101,19 @@ public class Ai
         if (successorEvaluations.size()==0)
             return null;
         // iterate over successors and find the maximal value
-        ArrayList<StateAndScores> bestSuccessors = new ArrayList();
+        
         for (int i = 0; i < successorEvaluations.size(); ++i) { 
             if (max < successorEvaluations.get(i).score) {
                 max = successorEvaluations.get(i).score;
             }
             System.out.println("Option "+ i + " results in "+ successorEvaluations.get(i).score);
         }
-        
+        System.out.println(max + " is max");
+        ArrayList<StateAndScores> bestSuccessors = new ArrayList();
         for(StateAndScores bestScore:successorEvaluations){//getting the best immediate successor score
             if(bestScore.score == max){//taking only the successors  that lead to the best result
-                int score = Evaluator.evaluate(bestScore.state, heuristic); //take heuristic score of immediate successor
-                bestSuccessors.add(new StateAndScores(score, bestScore.state));
-                System.out.println("immediate heuristic is " + score);
+                int sc = Evaluator.evaluate(bestScore.state, heuristic); //take heuristic score of immediate successor
+                bestSuccessors.add(new StateAndScores(sc, bestScore.state));
             }
         }
         
@@ -123,7 +123,9 @@ public class Ai
             if(bestSuccessors.get(i).score >= max){
                 max= bestSuccessors.get(i).score;
             }
+            System.out.println("Direct = "+ bestSuccessors.get(i).score);
         }
+        System.out.println("max immediate = " +max);
         ArrayList<int[][]> bestStates = new ArrayList<int[][]>();
         for(StateAndScores candidate : bestSuccessors){//filter out the states that meet the max score
             if(candidate.score==max){
@@ -297,7 +299,7 @@ public class Ai
                     
             }catch (Exception e){}    
         }
-        System.out.println();
+        
         return false;
     }
     //the successor function. gets all available successors for any given state

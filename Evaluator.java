@@ -8,6 +8,7 @@ public class Evaluator
     static final String P_W="Pieces + Weights";
     static final String P_W_P="Pieces + Weights + Positions";
     static final String P_AI="Pieces AI";
+    static final String P_AI_P="Pieces AI + Positions";
     public static int evaluate(int[][] candidate, String heur){
         int result = Integer.MIN_VALUE;
         switch (heur) {
@@ -19,6 +20,8 @@ public class Evaluator
                     result= piecesUltimate(candidate);
             case P_AI: 
                 result= piecesOwn(candidate);
+            case P_AI_P: 
+                result= piecesOwnW(candidate);    
             }
         return result;    
     }
@@ -136,6 +139,50 @@ public class Evaluator
                         if(i>1&&i<6)
                             sumOwn++;
                         break;
+                        
+                    
+                }
+            }
+        }
+        return sumOwn;
+    }
+    private static int piecesOwnW(int[][] candidate){//////heuristic that counts own pieces and enemy pieces plus values
+        int sumOwn=0;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                
+                switch(candidate[i][j]){///similar to the pieces() heuristic, but this one gives extra points for kings
+                    case 2:
+                        if(i==0){
+                            sumOwn +=2;
+                        } else if(i<3){
+                            sumOwn++;
+                            if(j<2||j>6){
+                                sumOwn++;
+                            }
+                        } else if (i<5){
+                            sumOwn += 2;
+                            if(j<2||j>6){
+                                sumOwn++;
+                            }
+                        } else {
+                            sumOwn += 3;
+                            if(j<2||j>6){
+                                sumOwn++;
+                            }
+                        }
+                            
+                        break;
+                    case 3:
+                        sumOwn +=6;
+                        if(i>1&&i<6)
+                            sumOwn++;
+                        break;
+                    case 4:
+                        sumOwn --;
+                        break;
+                      
+                        
                     
                 }
             }

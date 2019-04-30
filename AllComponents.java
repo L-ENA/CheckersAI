@@ -60,7 +60,7 @@ public class AllComponents extends JPanel
         standardBorder = new LineBorder(Color.GREEN);//Customizes the line colour for the following TitledBorder instances
         selectedLevel = "Intermediate";
         longJumps=false;
-        heur= "Pieces + Weights";
+        heur= "Pieces AI + Positions";
     }
     
     public void addBoardPane(Board p){//creates and adds the checkers board on the left, as the big component
@@ -197,7 +197,7 @@ public class AllComponents extends JPanel
             }
         });
         
-        String[] heuristics = { "Pieces", "Pieces + Weights", "Pieces + Weights + Positions", "Pieces Own"};
+        String[] heuristics = { "Pieces", "Pieces + Weights", "Pieces + Weights + Positions", "Pieces AI", "Pieces AI + Positions"};
         heuristicBox = new JComboBox(heuristics){
             @Override
             public Dimension getMaximumSize() {
