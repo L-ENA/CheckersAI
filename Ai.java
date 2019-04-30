@@ -74,6 +74,8 @@ public class Ai
     private int[][] randomMove(){//use successor function to get successors, and choose a random move
         player=1;
         statesAvailable = getAvailableStates(state);
+        if (statesAvailable.size()==0)//no more moves
+            return null;
         int index = r.nextInt(statesAvailable.size());
         return statesAvailable.get(index);
     }
@@ -96,6 +98,8 @@ public class Ai
         minimaxEvaluation();//determine successors
         int max = -10000;
         System.out.println(successorEvaluations.size() + " options");
+        if (successorEvaluations.size()==0)
+            return null;
         // iterate over successors and find the maximal value
         ArrayList<StateAndScores> bestSuccessors = new ArrayList();
         for (int i = 0; i < successorEvaluations.size(); ++i) { 
@@ -109,9 +113,7 @@ public class Ai
             if(bestScore.score == max){//taking only the successors  that lead to the best result
                 int score = Evaluator.evaluate(bestScore.state, heuristic); //take heuristic score of immediate successor
                 bestSuccessors.add(new StateAndScores(score, bestScore.state));
-                System.out.println("Scores of " + max);
-            } else {
-                System.out.println("Scores of non max:" + bestScore.score);
+                System.out.println("immediate heuristic is " + score);
             }
         }
         
@@ -126,9 +128,6 @@ public class Ai
         for(StateAndScores candidate : bestSuccessors){//filter out the states that meet the max score
             if(candidate.score==max){
                 bestStates.add(candidate.state);
-                System.out.println("immediate of " + max);
-            } else {
-                System.out.println("This immediate scored" + candidate.score);
             }
         }
         int index = r.nextInt(bestStates.size());//choose random best state if there is more than 1
@@ -247,8 +246,11 @@ public class Ai
                 bestStates.add(candidate.state);
             }
         }
+        if (bestStates.size()==0)
+            return null;
         int index = r.nextInt(bestStates.size());//choose random best state if there is more than 1
-        this.state = bestStates.get(index);
+        //this.state = bestStates.get(index);
+        //predict();
         return bestStates.get(index);
     }
     private void startEvaluation(){//evaluation for best immediate state
@@ -276,25 +278,33 @@ public class Ai
     }
     
     private boolean isValid( int[][] previous,  int[][] candidate){//checks if the move is a valid successor state
-            for (int i = 0; i < 8; ++i) {
-                for (int j = 0; j < 8; ++j) {//determines if the chain of forced moves is consistent.
-                 if(candidate[i][j] ==6 && previous[i][j] ==6){
-                    if(candidate[i-1][j-1]==5 && candidate[i+1][j+1]==5){
-                        return true;
-                    } else if(candidate[i-1][j+1]==5 && candidate[i+1][j-1]==5) {
-                        return true;
-                    } else{
-                        return false;
-                    }
+        boolean ret= false;   
+        Position source=null;
+        Position newSource=null;
+        Position oldKick=null;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {//determines if the chain of forced moves is consistent.
+               if(previous[i][j]!=5 && candidate[i][j]==5)     
+                    newSource= new Position(i,j); 
+               if(previous[i][j]==6 && candidate[i][j]==6)     
+                    oldKick= new Position(i,j); 
                 }
-            }
+            try{
+                if(newSource.i +1== oldKick.i || newSource.i -1== oldKick.i){
+                    if(newSource.j +1== oldKick.j || newSource.j -1== oldKick.j)
+                        return true;
+                }
+                    
+            }catch (Exception e){}    
         }
+        System.out.println();
         return false;
     }
     //the successor function. gets all available successors for any given state
     private ArrayList<int[][]> getAvailableStates(int[][] someState){
         this.kingConversion=false;
         this.forced=false;
+        
         ArrayList<int[][]> freePositions = new ArrayList<>();
         ArrayList<int[][]> candidates = forcedMove(someState);
         int[][] previous;        
@@ -386,6 +396,9 @@ public class Ai
         return st;
     }
     private void simpleMove(int iNew,int jNew,Position pos, int[][] someState){//moving and updating the candidate state
+        // if(player==2){
+            // System.out.println(pos.i+" " + pos.j+ "Can move to " + iNew+" "+ jNew);
+        // }
         int[][] stateCopy = cloneState(someState);///
         stateCopy[iNew][jNew] = stateCopy[pos.i][pos.j];
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
@@ -394,8 +407,11 @@ public class Ai
         
     }
     private int[][] captureMove(int iNew,int jNew,Position pos, int[][] someState){//moving and updating the candidate state
-        int ix = iNew+pos.i;
-        int jx = jNew+pos.j;
+        // int ix = iNew+pos.i;
+        // int jx = jNew+pos.j;
+        // if(player==2){
+            // System.out.println(pos.i+" " + pos.j+ "Can capture to " + ix+" "+ jx);
+        // }
         int[][] stateCopy = cloneState(someState);
         stateCopy[pos.i+iNew][pos.j+jNew]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated
@@ -405,8 +421,11 @@ public class Ai
     }
     
     private int[][] captureDiagonal(int i, int iAdded, int j, int jAdded,Position pos, int[][] someState){
-        int ix = iAdded+i;
-        int jx = jAdded+j;
+        // int ix = iAdded+i;
+        // int jx = jAdded+j;
+        // if(player==2){
+            // System.out.println(pos.i+" " + pos.j+ "Can capture to " + ix+" "+ jx);
+        // }
         int[][] stateCopy = cloneState(someState);
         stateCopy[i+ iAdded][j+ jAdded]=stateCopy[pos.i][pos.j];//our stone moved there
         stateCopy[pos.i][pos.j]=5;//the original position is vacated

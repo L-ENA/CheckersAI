@@ -7,7 +7,7 @@ import java.util.Observer;
  */
 public class Main
 {
-    private Gui gui;//the whole gui
+    protected Gui gui;//the whole gui
     protected int[][] myBoard;//the state
     int iDest,jDest,iSource,jSource;
     String currentLink;
@@ -52,6 +52,7 @@ public class Main
         
         };//creating internal state
         
+        
         // myBoard = new int[][]{
         // {0,2,0,0,0,4,0,2},////multicatch
         // {0,0,0,0,0,0,0,0},
@@ -95,8 +96,12 @@ public class Main
             deleteTrails();
             System.out.println("new round");
             ///////////////AI moves
+            
             updateAI();
             myBoard = ai.getMove(myBoard);
+            
+            if (myBoard == null)//
+                endGame("No more moves for AI!", "Board error");
             lostPiece();
             gui.componentPane.updateSidebar(nrMoves, plLoss, aiLoss, ai.seCount, ai.deCount, ai.pCount);
             visualiseState();
@@ -109,6 +114,7 @@ public class Main
         if(!gameOver()){
             updateAll();//lets the player make a new move
             System.out.println("updated all fields");
+            gui.componentPane.thinking("Your turn!");
         }else {
             endGame("Do you want to try again?", "You lost!");
         }

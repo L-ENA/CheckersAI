@@ -7,7 +7,7 @@ public class Evaluator
     static final String P="Pieces";
     static final String P_W="Pieces + Weights";
     static final String P_W_P="Pieces + Weights + Positions";
-    static final String D="Distance";
+    static final String P_AI="Pieces AI";
     public static int evaluate(int[][] candidate, String heur){
         int result = Integer.MIN_VALUE;
         switch (heur) {
@@ -17,6 +17,8 @@ public class Evaluator
                     result= piecesWeighted(candidate);
             case P_W_P: 
                     result= piecesUltimate(candidate);
+            case P_AI: 
+                result= piecesOwn(candidate);
             }
         return result;    
     }
@@ -51,10 +53,14 @@ public class Evaluator
                         sumEnemy++;
                         break;
                     case 3:
-                        sumOwn +=3;
+                        sumOwn +=2;
+                        if(i>1&&i<6)
+                            sumOwn++;
                         break;
                     case 4:
-                        sumEnemy +=3;
+                        sumEnemy +=2;
+                        if(i>1&&i<6)
+                            sumEnemy++;
                         break;
                 }
                 
@@ -93,15 +99,48 @@ public class Evaluator
                         break;
                     case 3:
                         sumOwn +=6;
-                        
+                        if(i>1&&i<6)
+                            sumOwn++;
                         break;
                     case 4:
                         sumEnemy +=6;
-                        //System.out.println("white king");
+                        if(i>1&&i<6)
+                            sumEnemy++;
                         break;
                 }
             }
         }
         return sumOwn-sumEnemy;
     }
+    
+    
+    private static int piecesOwn(int[][] candidate){//////heuristic that counts own pieces and enemy pieces plus values
+        int sumOwn=0;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                
+                switch(candidate[i][j]){///similar to the pieces() heuristic, but this one gives extra points for kings
+                    case 2:
+                        
+                        if(i<3){
+                            sumOwn++;
+                        } else if (i<6){
+                            sumOwn += 1;
+                        } else {
+                            sumOwn += 2;
+                        }
+                            
+                        break;
+                    case 3:
+                        sumOwn +=4;
+                        if(i>1&&i<6)
+                            sumOwn++;
+                        break;
+                    
+                }
+            }
+        }
+        return sumOwn;
+    }
+    
 }

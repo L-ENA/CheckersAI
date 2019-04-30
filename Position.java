@@ -26,6 +26,12 @@ class Position implements Cloneable{
         }
        return clone;
     }
+    protected boolean equals(Position p) {
+        if(p.i == this.i && p.j == this.j)
+            return true;
+        else
+            return false;
+    }
 }
 class StateAndScores {//for evaluating successor state in minimax
     int score;

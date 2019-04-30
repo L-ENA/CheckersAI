@@ -29,6 +29,7 @@ public class AllComponents extends JPanel
     private JCheckBox mode;
     private JButton reStart;
     private JComboBox heuristic;
+    private JLabel thinking;
     private GridBagConstraints c;
     
     private static final int wide = 1000;
@@ -59,7 +60,7 @@ public class AllComponents extends JPanel
         standardBorder = new LineBorder(Color.GREEN);//Customizes the line colour for the following TitledBorder instances
         selectedLevel = "Intermediate";
         longJumps=false;
-        heur= "Pieces + Weights + Positions";
+        heur= "Pieces + Weights";
     }
     
     public void addBoardPane(Board p){//creates and adds the checkers board on the left, as the big component
@@ -118,6 +119,11 @@ public class AllComponents extends JPanel
         pCount.setBorder(contentBorder);
         pCount.setAlignmentX(Component.CENTER_ALIGNMENT);
         
+        thinking= new JLabel("It is your turn!");
+        thinking.setBorder(contentBorder);
+        thinking.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        
         sidebar.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
         sidebar.add(nrLabel);
         sidebar.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
@@ -158,6 +164,10 @@ public class AllComponents extends JPanel
            }
         });
         sidebar.add(reStart);
+        
+        sidebar.add(Box.createRigidArea(new Dimension(0,15)));//some space between the components
+        sidebar.add(thinking);
+        
         this.add(sidebar, c);
     }
     private void addSettings(){//adding the options of the settings panel
@@ -187,7 +197,7 @@ public class AllComponents extends JPanel
             }
         });
         
-        String[] heuristics = { "Pieces", "Pieces + Weights", "Pieces + Weights + Positions"};
+        String[] heuristics = { "Pieces", "Pieces + Weights", "Pieces + Weights + Positions", "Pieces Own"};
         heuristicBox = new JComboBox(heuristics){
             @Override
             public Dimension getMaximumSize() {
@@ -238,6 +248,11 @@ public class AllComponents extends JPanel
          deCount.setText("Dynamic evaluations:  "+ deC);
          pCount.setText("Pruning counts:  "+ pC);
          //showOptions;
+         sidebar.revalidate();
+         sidebar.repaint();
+    }
+    public void thinking(String text){
+         thinking.setText(text);//show that AI is calculating
          sidebar.revalidate();
          sidebar.repaint();
     }

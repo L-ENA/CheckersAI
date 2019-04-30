@@ -83,6 +83,7 @@ public class Board extends JPanel
         this.repaint();
         this.setVisible(true);
     }
+    
     public void updateNoListeners(ArrayList<Integer> indexNew, String link){//updates a single field
         Field f = squares.get(indexNew);
         f = new Field(f.index, f.black);
@@ -106,8 +107,10 @@ public class Board extends JPanel
             public boolean canImport(TransferHandler.TransferSupport info) {//check if drop location is a valid move
                 Field dropped = (Field) info.getComponent();
                 val.tryDestination(dropped.i, dropped.j);
-                if(val.validateDrop())
+                if(val.validateDrop()){
+                    game.gui.componentPane.thinking("AI is thinking!");
                     return true;
+                }
                 else {
                     return false;
                 }
