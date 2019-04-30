@@ -9,6 +9,7 @@ public class Evaluator
     static final String P_W_P="Pieces + Weights + Positions";
     static final String P_AI="Pieces AI";
     static final String P_AI_P="Pieces AI + Positions";
+    static final String GRID="Grid";
     public static int evaluate(int[][] candidate, String heur){
         int result = Integer.MIN_VALUE;
         switch (heur) {
@@ -21,7 +22,9 @@ public class Evaluator
             case P_AI: 
                 result= piecesOwn(candidate);
             case P_AI_P: 
-                result= piecesOwnW(candidate);    
+                result= piecesOwnW(candidate);   
+            case GRID: 
+                result= grid(candidate);    
             }
         return result;    
     }
@@ -146,6 +149,40 @@ public class Evaluator
         }
         return sumOwn;
     }
+    private static int grid(int[][] candidate){
+        int sumOwn=0;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                switch(candidate[i][j]){///similar to the pieces() heuristic, but this one gives extra points for kings
+                    case 2:
+                        if(i==0||i==7||j==0||j==7){
+                            sumOwn+=4;
+                        }else if(i==1||i==6||j==1||j==6){
+                        
+                            sumOwn+=3;
+                        }else if(i==2||i==5||j==2||j==5){
+                        
+                            sumOwn+=2; 
+                        }else{
+                            sumOwn++;
+                        }
+                        try{
+                        if(candidate[i+1][j-1]!=3||candidate[i+1][j+1]!=3)
+                            sumOwn +=1;
+                        } catch (Exception e){}
+                        break;    
+                    case 3:
+                        sumOwn+=6;
+                        if(i>=1&&i<=6)
+                            sumOwn++;
+                        break;
+                    
+                }
+            }
+        }
+        return sumOwn;
+    }
+    
     private static int piecesOwnW(int[][] candidate){//////heuristic that counts own pieces and enemy pieces plus values
         int sumOwn=0;
         for (int i = 0; i < 8; ++i) {
